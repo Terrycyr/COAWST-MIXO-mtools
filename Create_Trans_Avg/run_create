@@ -1,0 +1,5 @@
+#!/bin/bash
+rm ./WFS*.nc
+rm ./create_trans
+ifort -mcmodel=medium -o create_trans ./*.f -I /cm/shared/apps/netcdf/intel/include/ -L /cm/shared/apps/netcdf/intel/lib/ -lnetcdf -lnetcdff
+./create_trans

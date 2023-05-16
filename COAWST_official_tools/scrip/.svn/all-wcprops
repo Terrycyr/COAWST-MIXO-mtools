@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip
+END
+scrip_grid_init.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/scrip_grid_init.m
+END
+write_remap.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/write_remap.m
+END
+resize_remap_vars.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/resize_remap_vars.m
+END
+scrip.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/scrip.m
+END
+init_remap_vars.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/init_remap_vars.m
+END
+remap_conserv.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/coawstmodel/COAWST/!svn/ver/953/Tools/mfiles/scrip/remap_conserv.m
+END

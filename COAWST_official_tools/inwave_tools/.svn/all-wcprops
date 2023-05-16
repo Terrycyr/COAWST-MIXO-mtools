@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools
+END
+InWave_bicro_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/InWave_bicro_param.m
+END
+InWave_shoreface_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/InWave_shoreface_param.m
+END
+verify_wave_current.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/verify_wave_current.m
+END
+InWave_grd.nc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/coawstmodel/COAWST/!svn/ver/211/Tools/mfiles/inwave_tools/InWave_grd.nc
+END
+start_inwave.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/start_inwave.txt
+END
+InWave_beach_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/InWave_beach_param.m
+END
+InWave_ini.nc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/coawstmodel/COAWST/!svn/ver/211/Tools/mfiles/inwave_tools/InWave_ini.nc
+END
+InWave_duck85_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/InWave_duck85_param.m
+END
+InWave_edge_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/InWave_edge_param.m
+END
+plot_shoreface.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/plot_shoreface.m
+END
+create_InWave_files.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/create_InWave_files.m
+END
+bicro.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/bicro.m
+END
+create_InWave_bnd.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/create_InWave_bnd.m
+END
+InWave_shoal_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/InWave_shoal_param.m
+END
+plot_beach.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/plot_beach.m
+END
+InWave_step_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/InWave_step_param.m
+END
+mat2roms_jcw.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/mat2roms_jcw.m
+END
+InWave_shore_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/InWave_shore_param.m
+END
+verify_wave_current_2.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/verify_wave_current_2.m
+END
+create_InWave_ini.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/coawstmodel/COAWST/!svn/ver/543/Tools/mfiles/inwave_tools/create_InWave_ini.m
+END
+create_ini_inwave.m
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/create_ini_inwave.m
+END
+create_bryfile.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/create_bryfile.m
+END
+InWave_soliton_param.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/InWave_soliton_param.m
+END
+InWave_bnd.nc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/coawstmodel/COAWST/!svn/ver/211/Tools/mfiles/inwave_tools/InWave_bnd.nc
+END
+create_InWave_grid.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/coawstmodel/COAWST/!svn/ver/523/Tools/mfiles/inwave_tools/create_InWave_grid.m
+END

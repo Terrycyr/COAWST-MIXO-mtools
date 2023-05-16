@@ -1,0 +1,9 @@
+% By Yuren Chen, 2020-07-15 , Version 1.0
+%--------------------------------------------------------------------------
+1. enter ./OTPS
+
+2. generate lat_lon_time file through mk_lltime_coawst.m
+
+3. modify all setup.inp and run the script run_coawst_tide.sh
+
+3. Copy the results files to a proper directory and run gen_tide.m and gen_tide_ini.m to get those needed .mat files.
