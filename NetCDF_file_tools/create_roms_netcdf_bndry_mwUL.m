@@ -1,27 +1,27 @@
-function create_roms_netcdf_bndry_mwUL(fn,gn,t_clim,t_clim2,t_clim3,dataset_source)
+function create_roms_netcdf_bndry_mwUL(fn,gn,t_clim,t_clim2,t_clim3,NCS,NNS,dataset_source)
 %
 % jcw April 18, 2009
 % updated 01Sep2015 to have all 4 sides
 %    for all the vars.
 %
 
-% Get some grid info. 
-  [LP,MP]=size(gn.lon_rho);
-  L=LP-1;
-  Lm=L-1;
-  M=MP-1;
-  Mm=M-1;
-  L  = Lm+1;
-  M  = Mm+1;
-  xpsi  = L;
-  xrho  = LP;
-  xu    = L;
-  xv    = LP;
-  epsi = M;
-  erho = MP;
-  eu   = MP;
-  ev   = M;
-  s    = gn.N;
+% Get some grid info.
+[LP,MP]=size(gn.lon_rho);
+L=LP-1;
+Lm=L-1;
+M=MP-1;
+Mm=M-1;
+L  = Lm+1;
+M  = Mm+1;
+xpsi  = L;
+xrho  = LP;
+xu    = L;
+xv    = LP;
+epsi = M;
+erho = MP;
+eu   = MP;
+ev   = M;
+s    = gn.N;
 
 %% create bndry file
 nc_bndry=netcdf.create(fn,'clobber');
@@ -35,7 +35,7 @@ netcdf.putAtt(nc_bndry,netcdf.getConstant('NC_GLOBAL'),'type', dataset_source);
 %% Dimensions:
 
 disp(' ## Defining Dimensions...')
- 
+
 psidimID = netcdf.defDim(nc_bndry,'xpsi',L);
 xrhodimID = netcdf.defDim(nc_bndry,'xrho',LP);
 xudimID = netcdf.defDim(nc_bndry,'xu',L);
@@ -55,11 +55,17 @@ if(~isempty(t_clim3))
     dytdimID = netcdf.defDim(nc_bndry,'dye_time',t_clim3);
 end
 tptdimID = netcdf.defDim(nc_bndry,'temp_time',t_clim);
-% mdtdimID = netcdf.defDim(nc_bndry,'mud_time',t_clim2);
- 
+
+if(NCS>0)
+    mdtdimID = netcdf.defDim(nc_bndry,'mud_time',t_clim);
+end
+if(NNS>0)
+    sdtdimID = netcdf.defDim(nc_bndry,'sand_time',t_clim);
+end
+
 %% Variables and attributes:
 disp(' ## Defining Dimensions, Variables, and Attributes...')
- 
+
 ztID = netcdf.defVar(nc_bndry,'zeta_time','float',zttdimID);
 netcdf.putAtt(nc_bndry,ztID,'long_name','zeta_time');
 netcdf.putAtt(nc_bndry,ztID,'units','days');
@@ -92,10 +98,19 @@ if(~isempty(t_clim3))
     netcdf.putAtt(nc_bndry,dyID,'field','dye_time, scalar, series');
 end
 
-% mdID = netcdf.defVar(nc_bndry,'mud_time','float',mdtdimID);
-% netcdf.putAtt(nc_bndry,tpID,'long_name','time for mud climatology');
-% netcdf.putAtt(nc_bndry,tpID,'units','days');
-% netcdf.putAtt(nc_bndry,tpID,'field','mud_time, scalar, series');
+if(NCS>0)
+    mdID = netcdf.defVar(nc_bndry,'mud_time','float',mdtdimID);
+    netcdf.putAtt(nc_bndry,mdID,'long_name','time for mud boundary');
+    netcdf.putAtt(nc_bndry,mdID,'units','days');
+    netcdf.putAtt(nc_bndry,mdID,'field','mud_time, scalar, series');
+end
+
+if(NNS>0)
+    sdID = netcdf.defVar(nc_bndry,'sand_time','float',sdtdimID);
+    netcdf.putAtt(nc_bndry,sdID,'long_name','time for sand boundary');
+    netcdf.putAtt(nc_bndry,sdID,'units','days');
+    netcdf.putAtt(nc_bndry,sdID,'field','sand_time, scalar, series');
+end
 
 zetsID = netcdf.defVar(nc_bndry,'zeta_south','float',[xrhodimID zttdimID]);
 netcdf.putAtt(nc_bndry,zetsID,'long_name','free-surface southern boundary condition');
@@ -238,126 +253,79 @@ netcdf.putAtt(nc_bndry,salnID,'units','psu');
 netcdf.putAtt(nc_bndry,salnID,'field','salt_north, scalar, series');
 
 if(~isempty(t_clim3))
-dye01sID = netcdf.defVar(nc_bndry,'dye_south_01','float',[xrhodimID s_rhodimID dytdimID]);
-netcdf.putAtt(nc_bndry,dye01sID,'long_name','3D tracer 01 southern boundary condition');
-netcdf.putAtt(nc_bndry,dye01sID,'units','mg/L');
-netcdf.putAtt(nc_bndry,dye01sID,'field','dye_south_01, scalar, series');
+    dye01sID = netcdf.defVar(nc_bndry,'dye_south_01','float',[xrhodimID s_rhodimID dytdimID]);
+    netcdf.putAtt(nc_bndry,dye01sID,'long_name','3D tracer 01 southern boundary condition');
+    netcdf.putAtt(nc_bndry,dye01sID,'units','mg/L');
+    netcdf.putAtt(nc_bndry,dye01sID,'field','dye_south_01, scalar, series');
 
-dye01eID = netcdf.defVar(nc_bndry,'dye_east_01','float',[erhodimID s_rhodimID dytdimID]);
-netcdf.putAtt(nc_bndry,dye01eID,'long_name','3D tracer 01 eastern boundary condition');
-netcdf.putAtt(nc_bndry,dye01eID,'units','mg/L');
-netcdf.putAtt(nc_bndry,dye01eID,'field','dye_east_01, scalar, series');
+    dye01eID = netcdf.defVar(nc_bndry,'dye_east_01','float',[erhodimID s_rhodimID dytdimID]);
+    netcdf.putAtt(nc_bndry,dye01eID,'long_name','3D tracer 01 eastern boundary condition');
+    netcdf.putAtt(nc_bndry,dye01eID,'units','mg/L');
+    netcdf.putAtt(nc_bndry,dye01eID,'field','dye_east_01, scalar, series');
 
-%dye01wID = netcdf.defVar(nc_bndry,'dye_west_01','float',[erhodimID s_rhodimID dytdimID]);
-%netcdf.putAtt(nc_bndry,dye01wID,'long_name','3D tracer 01 western boundary condition');
-%netcdf.putAtt(nc_bndry,dye01wID,'units','mg/L');
-%netcdf.putAtt(nc_bndry,dye01wID,'field','dye_west_01, scalar, series');
+    %dye01wID = netcdf.defVar(nc_bndry,'dye_west_01','float',[erhodimID s_rhodimID dytdimID]);
+    %netcdf.putAtt(nc_bndry,dye01wID,'long_name','3D tracer 01 western boundary condition');
+    %netcdf.putAtt(nc_bndry,dye01wID,'units','mg/L');
+    %netcdf.putAtt(nc_bndry,dye01wID,'field','dye_west_01, scalar, series');
 
-dye01nID = netcdf.defVar(nc_bndry,'dye_north_01','float',[xrhodimID s_rhodimID dytdimID]);
-netcdf.putAtt(nc_bndry,dye01nID,'long_name','3D tracer 01 northern boundary condition');
-netcdf.putAtt(nc_bndry,dye01nID,'units','mg/L');
-netcdf.putAtt(nc_bndry,dye01nID,'field','dye_north_01, scalar, series');
+    dye01nID = netcdf.defVar(nc_bndry,'dye_north_01','float',[xrhodimID s_rhodimID dytdimID]);
+    netcdf.putAtt(nc_bndry,dye01nID,'long_name','3D tracer 01 northern boundary condition');
+    netcdf.putAtt(nc_bndry,dye01nID,'units','mg/L');
+    netcdf.putAtt(nc_bndry,dye01nID,'field','dye_north_01, scalar, series');
 end
 
-% mudn01ID = netcdf.defVar(nc_bndry,'mud_north_01','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudn01ID,'long_name','northern boundary mud,size calss 01');
-% netcdf.putAtt(nc_bndry,mudn01ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudn01ID,'field','mud_north_01, scalar, series');
+if(NCS>0)
+    for i=1:NCS
+        class = sprintf('%02d',i);
+        eval(strcat('mudn',class,'ID = netcdf.defVar(nc_bndry,''mud_north_',class,''',''float'',[xrhodimID s_rhodimID mdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mudn',class,'ID,''long_name'',''northern boundary mud,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mudn',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mudn',class,'ID,''field'',''mud_north_',class,', scalar, series'');'));
+
+        eval(strcat('muds',class,'ID = netcdf.defVar(nc_bndry,''mud_south_',class,''',''float'',[xrhodimID s_rhodimID mdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,muds',class,'ID,''long_name'',''southern boundary mud,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,muds',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,muds',class,'ID,''field'',''mud_south_',class,', scalar, series'');'));
+
+%         eval(strcat('mudw',class,'ID = netcdf.defVar(nc_bndry,''mud_west_',class,''',''float'',[erhodimID s_rhodimID mdtdimID]);'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,mudw',class,'ID,''long_name'',''westhern boundary mud,size calss ',class,''');'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,mudw',class,'ID,''units'',''kilogram meter-3'');'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,mudw',class,'ID,''field'',''mud_west_',class,', scalar, series'');'));
 % 
-% mudn02ID = netcdf.defVar(nc_bndry,'mud_north_02','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudn02ID,'long_name','northern boundary mud,size calss 02');
-% netcdf.putAtt(nc_bndry,mudn02ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudn02ID,'field','mud_north_02, scalar, series');
-% 
-% mudn03ID = netcdf.defVar(nc_bndry,'mud_north_03','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudn03ID,'long_name','northern boundary mud,size calss 03');
-% netcdf.putAtt(nc_bndry,mudn03ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudn03ID,'field','mud_north_03, scalar, series');
-% 
-% mudn04ID = netcdf.defVar(nc_bndry,'mud_north_04','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudn04ID,'long_name','northern boundary mud,size calss 04');
-% netcdf.putAtt(nc_bndry,mudn04ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudn04ID,'field','mud_north_04, scalar, series');
-% 
-% mudn05ID = netcdf.defVar(nc_bndry,'mud_north_05','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudn05ID,'long_name','northern boundary mud,size calss 05');
-% netcdf.putAtt(nc_bndry,mudn05ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudn05ID,'field','mud_north_05, scalar, series');
-% 
-% muds01ID = netcdf.defVar(nc_bndry,'mud_south_01','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,muds01ID,'long_name','southern boundary mud,size calss 01');
-% netcdf.putAtt(nc_bndry,muds01ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,muds01ID,'field','mud_south_01, scalar, series');
-% 
-% muds02ID = netcdf.defVar(nc_bndry,'mud_south_02','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,muds02ID,'long_name','southern boundary mud,size calss 02');
-% netcdf.putAtt(nc_bndry,muds02ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,muds02ID,'field','mud_south_02, scalar, series');
-% 
-% muds03ID = netcdf.defVar(nc_bndry,'mud_south_03','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,muds03ID,'long_name','southern boundary mud,size calss 03');
-% netcdf.putAtt(nc_bndry,muds03ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,muds03ID,'field','mud_south_03, scalar, series');
-% 
-% muds04ID = netcdf.defVar(nc_bndry,'mud_south_04','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,muds04ID,'long_name','southern boundary mud,size calss 04');
-% netcdf.putAtt(nc_bndry,muds04ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,muds04ID,'field','mud_south_04, scalar, series');
-% 
-% muds05ID = netcdf.defVar(nc_bndry,'mud_south_05','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,muds05ID,'long_name','southern boundary mud,size calss 05');
-% netcdf.putAtt(nc_bndry,muds05ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,muds05ID,'field','mud_south_05, scalar, series');
-% 
-% mude01ID = netcdf.defVar(nc_bndry,'mud_east_01','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mude01ID,'long_name','eastern boundary mud,size calss 01');
-% netcdf.putAtt(nc_bndry,mude01ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mude01ID,'field','mud_east_01, scalar, series');
-% 
-% mude02ID = netcdf.defVar(nc_bndry,'mud_east_02','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mude02ID,'long_name','eastern boundary mud,size calss 02');
-% netcdf.putAtt(nc_bndry,mude02ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mude02ID,'field','mud_east_02, scalar, series');
-% 
-% mude03ID = netcdf.defVar(nc_bndry,'mud_east_03','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mude03ID,'long_name','eastern boundary mud,size calss 03');
-% netcdf.putAtt(nc_bndry,mude03ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mude03ID,'field','mud_east_03, scalar, series');
-% 
-% mude04ID = netcdf.defVar(nc_bndry,'mud_east_04','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mude04ID,'long_name','eastern boundary mud,size calss 04');
-% netcdf.putAtt(nc_bndry,mude04ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mude04ID,'field','mud_east_04, scalar, series');
-% 
-% mude05ID = netcdf.defVar(nc_bndry,'mud_east_05','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mude05ID,'long_name','eastern boundary mud,size calss 05');
-% netcdf.putAtt(nc_bndry,mude05ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mude05ID,'field','mud_east_05, scalar, series');
-% 
-% mudw01ID = netcdf.defVar(nc_bndry,'mud_west_01','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudw01ID,'long_name','western boundary mud,size calss 01');
-% netcdf.putAtt(nc_bndry,mudw01ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudw01ID,'field','mud_west_01, scalar, series');
-% 
-% mudw02ID = netcdf.defVar(nc_bndry,'mud_west_02','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudw02ID,'long_name','western boundary mud,size calss 02');
-% netcdf.putAtt(nc_bndry,mudw02ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudw02ID,'field','mud_west_02, scalar, series');
-% 
-% mudw03ID = netcdf.defVar(nc_bndry,'mud_west_03','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudw03ID,'long_name','western boundary mud,size calss 03');
-% netcdf.putAtt(nc_bndry,mudw03ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudw03ID,'field','mud_west_03, scalar, series');
-% 
-% mudw04ID = netcdf.defVar(nc_bndry,'mud_west_04','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudw04ID,'long_name','western boundary mud,size calss 04');
-% netcdf.putAtt(nc_bndry,mudw04ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudw04ID,'field','mud_west_04, scalar, series');
-% 
-% mudw05ID = netcdf.defVar(nc_bndry,'mud_west_05','float',[xrhodimID s_rhodimID mdtdimID]);
-% netcdf.putAtt(nc_bndry,mudw05ID,'long_name','western boundary mud,size calss 05');
-% netcdf.putAtt(nc_bndry,mudw05ID,'units','kilogram meter-3');
-% netcdf.putAtt(nc_bndry,mudw05ID,'field','mud_west_05, scalar, series');
+        eval(strcat('mude',class,'ID = netcdf.defVar(nc_bndry,''mud_east_',class,''',''float'',[erhodimID s_rhodimID mdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mude',class,'ID,''long_name'',''easthern boundary mud,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mude',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,mude',class,'ID,''field'',''mud_east_',class,', scalar, series'');'));
+
+    end
+end
+
+
+if(NNS>0)
+    for i=1:NNS
+        class = sprintf('%02d',i);
+        eval(strcat('sandn',class,'ID = netcdf.defVar(nc_bndry,''sand_north_',class,''',''float'',[xrhodimID s_rhodimID sdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sandn',class,'ID,''long_name'',''northern boundary sand,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sandn',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sandn',class,'ID,''field'',''sand_north_',class,', scalar, series'');'));
+
+        eval(strcat('sands',class,'ID = netcdf.defVar(nc_bndry,''sand_south_',class,''',''float'',[xrhodimID s_rhodimID sdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sands',class,'ID,''long_name'',''southern boundary sand,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sands',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sands',class,'ID,''field'',''sand_south_',class,', scalar, series'');'));
+
+%         eval(strcat('sandw',class,'ID = netcdf.defVar(nc_bndry,''sand_west_',class,''',''float'',[erhodimID s_rhodimID sdtdimID]);'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,sandw',class,'ID,''long_name'',''westhern boundary sand,size calss ',class,''');'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,sandw',class,'ID,''units'',''kilogram meter-3'');'));
+%         eval(strcat('netcdf.putAtt(nc_bndry,sandw',class,'ID,''field'',''sand_west_',class,', scalar, series'');'));
+
+        eval(strcat('sande',class,'ID = netcdf.defVar(nc_bndry,''sand_east_',class,''',''float'',[erhodimID s_rhodimID sdtdimID]);'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sande',class,'ID,''long_name'',''easthern boundary sand,size calss ',class,''');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sande',class,'ID,''units'',''kilogram meter-3'');'));
+        eval(strcat('netcdf.putAtt(nc_bndry,sande',class,'ID,''field'',''sand_east_',class,', scalar, series'');'));
+
+    end
+end
 
 %close file
 netcdf.close(nc_bndry)

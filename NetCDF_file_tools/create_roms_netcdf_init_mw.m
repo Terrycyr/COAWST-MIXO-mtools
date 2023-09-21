@@ -239,6 +239,12 @@ if(Nbed>0)
     netcdf.putAtt(nc_init,bed_biodiffID,'units','meter2 second-1');
     netcdf.putAtt(nc_init,bed_biodiffID,'time','ocean_time');
     netcdf.putAtt(nc_init,bed_biodiffID,'field','bed biodiffusivity, scalar, series');
+
+    bed_taucritID = netcdf.defVar(nc_init,'bed_tau_crit','double',[xrhodimID erhodimID NbeddimID timedimID]);
+    netcdf.putAtt(nc_init,bed_taucritID,'long_name','tau critical in each layer');
+    netcdf.putAtt(nc_init,bed_taucritID,'units','Newtons meter-2');
+    netcdf.putAtt(nc_init,bed_taucritID,'time','ocean_time');
+    netcdf.putAtt(nc_init,bed_taucritID,'field','bed tau critical, scalar, series');
 end
 
 grain_diameterID = netcdf.defVar(nc_init,'grain_diameter','double',[xrhodimID erhodimID timedimID]);

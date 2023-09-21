@@ -1,20 +1,20 @@
 clear all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-year_list = [2003];
+%station_list
+% station_name={'CB3.3E','CB3.3C','CB3.3W','CB4.4','CB5.4','CB8.1','LE2.3','LE5.5A','LE5.5B'};
+% station_name={'CB2.2','CB3.1','CB3.2','CB3.3W','CB3.3C','CB3.3E',...
+%     'CB4.1W','CB4.1C','CB4.1E','CB4.2W','CB4.2C','CB4.2E','CB4.3W',...
+%     'CB4.3C','CB4.3E','CB4.4','CB5.1W','CB5.1','CB5.2','CB5.3','CB5.4',...
+%     'CB5.5','CB7.1N','CB7.1','CB6.1','CB7.1S','CB6.2','CB6.3','CB7.2',...
+%     'CB7.2E','CB6.4','CB7.3E','CB7.3','CB7.4N','CB7.4','CB8.1','CB8.1E',...
+%     'LE2.3','LE3.6','LE4.3','LE5.5A','LE5.5B'};
 
-use_file_inp = 1;
-if(use_file_inp)
+if(1)
     [~,~,station_name]=xlsread('all_station.xlsx')
     station_name=station_name';
 else
     station_name={'CB3.2'};
-%     station_name={'CB2.2','CB3.1','CB3.2','CB3.3W','CB3.3C','CB3.3E',...
-%         'CB4.1W','CB4.1C','CB4.1E','CB4.2W','CB4.2C','CB4.2E','CB4.3W',...
-%         'CB4.3C','CB4.3E','CB4.4','CB5.1W','CB5.1','CB5.2','CB5.3','CB5.4',...
-%         'CB5.5','CB7.1N','CB7.1','CB6.1','CB7.1S','CB6.2','CB6.3','CB7.2',...
-%         'CB7.2E','CB6.4','CB7.3E','CB7.3','CB7.4N','CB7.4','CB8.1','CB8.1E',...
-%         'LE2.3','LE3.6','LE4.3','LE5.5A','LE5.5B'};
 end
 
 %variable_list
@@ -23,7 +23,7 @@ vname={'SALINITY','WTEMP','DO'};
 %Output directory
 out_dir = './';
 
-for iyear=year_list
+for iyear=2003
 
     fid=fopen(['CPB_monitoring_stations_lonlat_',num2str(iyear),'.dat'],'w');
     fid2=fopen(['CPB_monitoring_stations_name_',num2str(iyear),'.dat'],'w');
@@ -122,3 +122,5 @@ for iyear=year_list
     save(['CPB_monitoring_stations_name_',num2str(iyear),'.mat'],'name')
     clear name
 end
+
+tada

@@ -1,4 +1,4 @@
-function [] = gen_bay_nutrients_ini(cruise_dir,init_fn,grd,bay_mask,year,include_cruise,dep_range,time_range,time_range2)
+function [] = gen_bay_nutrients_ini(cruise_dir,init_fn,grd,bay_mask,year,include_cruise,dep_range,time_range,time_range2,DON_method,TSS_flag)
 
 addpath(path,'../../matlab_tools');
 
@@ -255,44 +255,48 @@ colorbar;
 title('OC');
 
 %don
-% [dat,txt,raw] = xlsread(init_fn,6);
-% 
-% k = 0;
-% for i=2:size(raw,1)
-% 
-%     switch raw{i,9}
-%         case 'ug/l'
-%             k=k+1;
-%             tmp(k) = raw{i,8}/1000;
-%         case 'mg/l'
-%             k=k+1;
-%             tmp(k) = raw{i,8};
-%         otherwise
-%             k=k+1;
-%             tmp(k) = raw{i,8}/1000;
-%     end
-% 
-%     on(k) = tmp(k);
-%     lon_on(k) = raw{i,3};
-%     lat_on(k) = raw{i,2};
-% end
-% 
-% don = on*ONDP_r;
-% 
-% don_bay0 = griddata(lon_on(:),lat_on(:),don(:),lon,lat);
-% don_bay0(mask==0) = 0;
-% 
-% for i=1:N
-%     if(include_cruise(4))
-%         tmp = cruise_ini.don_int(:,:,i);
-%         tmp(~isnan(don_bay0)) = don_bay0(~isnan(don_bay0));
-%         don_bay(:,:,i) = tmp;
-%     else
-%         don_bay(:,:,i) = don_bay0;
-%     end
-% end
+if(strcmp(DON_method,'DON'))
+    [dat,txt,raw] = xlsread(init_fn,6);
+
+    k = 0;
+    for i=2:size(raw,1)
+
+        switch raw{i,9}
+            case 'ug/l'
+                k=k+1;
+                tmp(k) = raw{i,8}/1000;
+            case 'mg/l'
+                k=k+1;
+                tmp(k) = raw{i,8};
+            otherwise
+                k=k+1;
+                tmp(k) = raw{i,8}/1000;
+        end
+
+        on(k) = tmp(k);
+        lon_on(k) = raw{i,3};
+        lat_on(k) = raw{i,2};
+    end
+
+    don = on*ONDP_r;
+
+    don_bay0 = griddata(lon_on(:),lat_on(:),don(:),lon,lat);
+    don_bay0(mask==0) = 0;
+
+    for i=1:N
+        if(include_cruise(4))
+            tmp = cruise_ini.don_int(:,:,i);
+            tmp(~isnan(don_bay0)) = don_bay0(~isnan(don_bay0));
+            don_bay(:,:,i) = tmp;
+        else
+            don_bay(:,:,i) = don_bay0;
+        end
+    end
+end
+
 
 %tn
+if(strcmp(DON_method,'TN'))
 [~,~,raw] = xlsread(init_fn,7);
 k = 0;
 for i=2:size(raw,1)
@@ -340,6 +344,58 @@ colorbar;
 %set(hp,'linestyle','none');
 colorbar;
 title('TN');
+end
+
+%tkn
+if(strcmp(DON_method,'TKN'))
+[~,~,raw] = xlsread(init_fn,10);
+k = 0;
+for i=2:size(raw,1)
+
+    switch raw{i,9}
+        case 'ug/l'
+            k=k+1;
+            tmp(k) = raw{i,8}/1000;
+        case 'mg/l'
+            k=k+1;
+            tmp(k) = raw{i,8};
+        otherwise
+            k=k+1;
+            tmp(k) = raw{i,8}/1000;
+    end
+
+    tkn(k) = tmp(k);
+    lon_tkn(k) = raw{i,3};
+    lat_tkn(k) = raw{i,2};
+end
+
+tkn_bay0 = griddata(lon_tkn,lat_tkn,tkn,lon,lat);
+tkn_bay0(bay_mask==0) = NaN;
+
+for i=1:N
+    tkn_bay(:,:,i) = tkn_bay0; 
+    on_bay(:,:,i) = tkn_bay(:,:,i)--nh4_bay2(:,:,i);
+    don_bay(:,:,i) = on_bay(:,:,i)*ONDP_r;
+end
+
+figure;
+contourf(lon,lat,don_bay(:,:,1),'linestyle','none');
+colorbar;
+%hp = pcolor(lon,lat,don_bay(:,:,1));
+%set(hp,'linestyle','none');
+colorbar;
+title('DON');
+
+figure;
+contourf(lon,lat,tkn_bay(:,:,1),'linestyle','none');
+hold on;
+scatter(lon_tkn,lat_tkn,30,tkn,'filled','MarkerEdgeColor','r','LineWidth',1);
+colorbar;
+%hp = pcolor(lon,lat,tkn_bay);
+%set(hp,'linestyle','none');
+colorbar;
+title('TKN');
+end
 
 %sal
 [dat,txt,raw] = xlsread(init_fn,8);
@@ -406,8 +462,59 @@ scatter(lon_chla(:),lat_chla(:),30,chla(:),'filled','MarkerEdgeColor','r','LineW
 colorbar;
 title('CHLA');
 
-save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
-    ,'sit_bay','oc_bay','don_bay','tn_bay','sal_bay','chla_bay');
+if(TSS_flag)
+%TSS
+[dat,txt,raw] = xlsread(init_fn,11);
+k = 0;
+for i=2:size(raw,1)
+    switch raw{i,9}
+        case 'ug/l'
+            k=k+1;
+            tmp(k) = raw{i,8}/1000;
+        case 'mg/l'
+            k=k+1;
+            tmp(k) = raw{i,8};
+        otherwise
+            k=k+1;
+            tmp(k) = raw{i,8}/1000;
+    end
+
+    tss(k) = tmp(k);
+    lon_tss(k) = raw{i,3};
+    lat_tss(k) = raw{i,2};
+end
+tss_bay0 = griddata(lon_tss,lat_tss,tss,lon,lat);
+tss_bay0(bay_mask==0) = NaN;
+
+for i=1:N
+    tss_bay(:,:,i) = tss_bay0;  
+end
+
+figure;
+hp = pcolor(lon,lat,tss_bay(:,:,1));
+set(hp,'linestyle','none');
+%contourf(lon,lat,tss_bay(:,:,1),'linestyle','none');
+hold on;
+scatter(lon_tss(:),lat_tss(:),30,tss(:),'filled','MarkerEdgeColor','r','LineWidth',1);
+colorbar;
+title('TSS');
+end
+
+if(strcmp(DON_method,'TN'))
+    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+        ,'sit_bay','oc_bay','don_bay','tn_bay','sal_bay','chla_bay');
+elseif(strcmp(DON_method,'TKN'))
+    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+        ,'sit_bay','oc_bay','don_bay','tkn_bay','sal_bay','chla_bay');
+elseif(strcmp(DON_method,'DON'))
+    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+        ,'sit_bay','oc_bay','don_bay','sal_bay','chla_bay');
+end
+
+if(TSS_flag)
+    save(strcat('bay_ini_',num2str(year),'.mat'),'tss_bay','-append');
+end
+
 end
 
 

@@ -481,38 +481,38 @@ e_temp_out = e_temp3;
 e_u_out = e_u5;
 e_v_out = e_v5;
 
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'date_out2d','date_out3d','-v7.3');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_el_out','-append');           
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_s_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_temp_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_u_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_v_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_u2d_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'s_v2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'date_out2d','date_out3d','-v7.3');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_el_out','-append');           
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_s_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_temp_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_u_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_v_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_u2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'s_v2d_out','-append');
 
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_el_out','-append');           
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_s_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_temp_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_u_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_v_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_u2d_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'n_v2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_el_out','-append');           
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_s_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_temp_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_u_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_v_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_u2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'n_v2d_out','-append');
 
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_el_out','-append');           
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_s_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_temp_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_u_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_v_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_u2d_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'w_v2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_el_out','-append');           
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_s_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_temp_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_u_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_v_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_u2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'w_v2d_out','-append');
 
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_el_out','-append');           
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_s_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_temp_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_u_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_v_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_u2d_out','-append');
-save(strcat('non_tidal_bnd_',num2str(year),'.mat'),'e_v2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_el_out','-append');           
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_s_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_temp_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_u_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_v_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_u2d_out','-append');
+save(strcat('non_tidal_bnd_',num2str(year),'_detide.mat'),'e_v2d_out','-append');
 
 %Figures for checking
 figure;
