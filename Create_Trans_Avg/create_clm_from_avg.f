@@ -14,7 +14,7 @@
       INTEGER ::   Varid6, Varid7, Varid8, Varid9, Varid10
       INTEGER ::   Varid11, Varid12, Varid13, Varid14, Varid15
       INTEGER ::   Varid16, Varid17, Varid18, Varid19, Varid20
-      INTEGER, PARAMETER :: NX=456,NY=184,NZ=21,NT=24
+      INTEGER, PARAMETER :: NX=456,NY=184,NZ=21,NT=48
       CHARACTER(LEN=100) :: SUBNA, HISNA, AVGNA, filename
       CHARACTER(LEN=5) :: str, str2, str3
 !
@@ -45,10 +45,10 @@
     
       REAL*8     :: dzero
 
-      dzero = 88.
-      YEAR = 2021
+      dzero = 243.
+      YEAR = 2022
       DAYS = 365-dzero
-      REC_INT = 2
+      REC_INT = 1
 !-----------------------------------------------------------------------
 ! Define output files
 !-----------------------------------------------------------------------
@@ -343,6 +343,8 @@
 !     .                    stride=(/1,1,REC_INT/))
 !      CALL nccheck_status(status,'shflux',SUBNA)
 
+      status = nf90_close(ncID)
+      CALL nccheck_status(status,'END READING',SUBNA)
 !-----------------------------------------------------------------------
 ! Ouput ROMS variable into single file
 !----------------------------------------------------------------------- 

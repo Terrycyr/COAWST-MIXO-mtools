@@ -1,0 +1,5 @@
+#!/bin/bash
+rm ./WFS*.nc
+rm ./create_SSC
+ifort -mcmodel=medium -o create_SSC ./*.f -I /cm/shared/apps/netcdf/intel/include/ -L /cm/shared/apps/netcdf/intel/lib/ -lnetcdf -lnetcdff
+./create_SSC
