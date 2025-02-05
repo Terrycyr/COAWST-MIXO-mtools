@@ -42,19 +42,18 @@
 #define MASKING
 !#define LIMIT_BSTRESS
 
-#define T_PASSIVE
+#undef T_PASSIVE
 
 #undef SEDIMENT
 #ifdef SEDIMENT
-!# define BEDLOAD_MPM
-# define ANA_BPFLUX
-# define ANA_SPFLUX
-# undef BEDLOAD_SOULSBY
-!# define RIVER_SEDIMENT /* Process river sediment point-sources */
-!# define SED_DENS /* Activate sediment to affect equation of state */
-# define SED_MORPH /* allow bottom model elevation to evolve */
 # define SUSPLOAD /* Activate suspended load transport */
-# define SED_TAU_CD_CONST   /* use constant critical stress for deposition */
+# undef  BEDLOAD_SOULSBY
+# undef  BEDLOAD_MPM
+# define SED_DENS /* Activate sediment to affect equation of state */
+# undef SED_MORPH /* allow bottom model elevation to evolve */
+# undef  SED_BIODIFF
+# undef COHESIVE_BED
+# undef  MIXED_BED
 #endif
 
 #define BULK_FLUXES

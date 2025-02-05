@@ -1,10 +1,15 @@
 function [nutri_dat,nutri_mean] = pre_process_river_nutrients(fn,varname,n_river,on_flag)
-
+addpath(path,'C:\Users\cheny\Desktop\EcoHAB\self_functions');
 for i=1:n_river
     tmp = xlsread(fn,i);
-    for j=1:length(varname(1:end-1))
-        dat_tmp = tmp(:,2*j);
-        t_tmp = datenum(1900,1,1)+tmp(:,2*j-1)+5/24;
+    k0=0;
+    for j=1:length(varname)
+        if(strcmp(varname{j},'OP'))
+            continue;
+        end
+        k0=k0+1;
+        dat_tmp = tmp(:,2*k0);
+        t_tmp = xlstime2date(tmp(:,2*k0-1));
         t_tmp(isnan(dat_tmp)) = [];
         dat_tmp(isnan(dat_tmp)) = [];
         if(length(unique(t_tmp))<12)
@@ -41,7 +46,7 @@ for i=1:n_river
             nutri_mean{i,j}(:,1) = t2;
             nutri_mean{i,j}(:,2) = smooth(value2,7);
 
-            if(j==4&&on_flag(i)==1)
+            if(strcmp(varname{j},'TN')&&on_flag(i)==1)
                 nh4_tmp = interp1(nutri_dat{i,1}(:,1),nutri_dat{i,1}(:,2),nutri_dat{i,j}(:,1));
                 no23_tmp = interp1(nutri_dat{i,2}(:,1),nutri_dat{i,2}(:,2),nutri_dat{i,j}(:,1));
                 on_tmp = nutri_dat{i,j}(:,2)-nh4_tmp-no23_tmp;

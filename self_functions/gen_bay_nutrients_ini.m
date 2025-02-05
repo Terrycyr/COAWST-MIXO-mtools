@@ -1,4 +1,4 @@
-function [] = gen_bay_nutrients_ini(cruise_dir,init_fn,grd,bay_mask,year,include_cruise,dep_range,time_range,time_range2,DON_method,TSS_flag)
+function [] = gen_bay_nutrients_ini(cruise_dir,init_fn,out_name,grd,bay_mask,year,include_cruise,dep_range,time_range,time_range2,DON_method,TSS_flag)
 
 addpath(path,'../../matlab_tools');
 
@@ -30,7 +30,9 @@ lat = ncread(fn,'lat_rho');
 h = ncread(fn,'h');
 
 %run([cruise_dir,'/read_cruise_data.m']);
-[cruise_ini] = process_cruise_data(cruise_dir,grd,time_range,time_range2);
+if(~isempty(time_range)&~isempty(time_range2))
+    [cruise_ini] = process_cruise_data(cruise_dir,grd,time_range,time_range2);
+end
 
 
 %no23
@@ -501,18 +503,18 @@ title('TSS');
 end
 
 if(strcmp(DON_method,'TN'))
-    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+    save(out_name,'no23_bay','nh4_bay','po4_bay'...
         ,'sit_bay','oc_bay','don_bay','tn_bay','sal_bay','chla_bay');
 elseif(strcmp(DON_method,'TKN'))
-    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+    save(out_name,'no23_bay','nh4_bay','po4_bay'...
         ,'sit_bay','oc_bay','don_bay','tkn_bay','sal_bay','chla_bay');
 elseif(strcmp(DON_method,'DON'))
-    save(strcat('bay_ini_',num2str(year),'.mat'),'no23_bay','nh4_bay','po4_bay'...
+    save(out_name,'no23_bay','nh4_bay','po4_bay'...
         ,'sit_bay','oc_bay','don_bay','sal_bay','chla_bay');
 end
 
 if(TSS_flag)
-    save(strcat('bay_ini_',num2str(year),'.mat'),'tss_bay','-append');
+    save(out_name,'tss_bay','-append');
 end
 
 end

@@ -1,0 +1,7 @@
+clear all;
+
+NC = 0.15:
+Kq = 0.1;
+Hq = 4;
+NCabs = 0.3;
+RF = (((1+Kq^Hq)*(1-NC/NCabs).^Hq))./((1-NC/NCabs).^Hq+Kq^Hq);

@@ -13,14 +13,15 @@ addpath(path,'../../COAWST/Tools/mfiles/rutgers/utility');
 addpath(path,'../../COAWST/Tools/mfiles/roms_clm');
 
 % Output time
-date_out = datenum(2021,3,30,0,0,0);
+date_out = datenum(2006,1,1,0,0,0);
 
 % model grid
 %fn = '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-fn = '../Model_grid/ROMS_WFS_Piney.nc';
+fn = '../Model_grid/ROMS_WFS_new.nc';
 
 % params.
-year = 2021;
+tmp = datevec(date_out(1));
+year = tmp(1);
 N= length(ncread(fn,'Cs_r'));
 Vtransform = ncread(fn,'Vtransform');                         
 Vstretching = ncread(fn,'Vstretching');

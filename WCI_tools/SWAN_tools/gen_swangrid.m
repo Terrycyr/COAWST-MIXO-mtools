@@ -1,43 +1,44 @@
 clear all;
-lon = ncread('./pre_2017_grd.nc','lon_rho');
-lat = ncread('./pre_2017_grd.nc','lat_rho');
-x = ncread('./pre_2017_grd.nc','x_rho');
-y = ncread('./pre_2017_grd.nc','y_rho');
-dep = ncread('./pre_2017_grd.nc','h');
-mask = ncread('./pre_2017_grd.nc','mask_rho');
+grd = 'ROMS_WFS_new.nc';
+lon = ncread(grd,'lon_rho');
+lat = ncread(grd,'lat_rho');
+dep = ncread(grd,'h');
+mask = ncread(grd,'mask_rho');
 lon = lon';
 lat = lat';
-x = x';
-y = y';
 dep = dep';
 mask = mask';
 dep(mask==0)=-999.999;
 
-fid = fopen('./PRE_2017_grd.dat','wt+');
-fid2 = fopen('./PRE_2017_depth.dat','wt+');
-fid3 = fopen('./PRE_2017_lon.dat','wt+');
-fid4 = fopen('./PRE_2017_lat.dat','wt+');
-fid5 = fopen('./PRE_2017_xy.dat','wt+');
+fid = fopen('./WFS_swan_grd.dat','wt+');
+fid2 = fopen('./WFS_swan_depth.dat','wt+');
+fid3 = fopen('./WFS_swan_lon.dat','wt+');
+fid4 = fopen('./WFS_swan_lat.dat','wt+');
+fid5 = fopen('./WFS_swan_coord.dat','wt+');
 [r,c] = size(lat);
 
 for i=1:r
     fprintf(fid,'%13.6f',lon(i,:));
     fprintf(fid3,'%13.6f',lon(i,:));
-    fprintf(fid5,'%12.1f',x(i,:));
     fprintf(fid2,'%10.3f',dep(i,:));
     fprintf(fid,'\n');
     fprintf(fid2,'\n');
     fprintf(fid3,'\n');
-    fprintf(fid5,'\n');
+    for j=1:length(lon(i,:))
+        fprintf(fid5,'%13.6f',lon(i,j));
+        fprintf(fid5,'\n');
+    end
 end
 
 for i=1:r
     fprintf(fid,'%13.6f',lat(i,:));
     fprintf(fid4,'%13.6f',lat(i,:));
-    fprintf(fid5,'%12.1f',y(i,:));
     fprintf(fid,'\n');
     fprintf(fid4,'\n');
-    fprintf(fid5,'\n');
+    for j=1:length(lat(i,:))
+        fprintf(fid5,'%13.6f',lat(i,j));
+        fprintf(fid5,'\n');
+    end
 end
 fclose(fid);
 fclose(fid2);

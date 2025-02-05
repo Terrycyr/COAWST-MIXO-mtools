@@ -1,0 +1,23 @@
+clear all;
+
+t = 10:35;
+% 
+%Lenes et al., 2012
+GITMAX1 = 0.8*exp(0.0633*(t-27));
+
+TOPT2 = 27;
+K2C = 0.8;
+K2BETA1 = 0.005;
+K2BETA2 = 0.05;
+for i=1:length(t)
+    if(t(i)<=TOPT2)
+        GITMAX2(i) = K2C*exp(-K2BETA1*(t(i)-TOPT2)^2.);
+    else
+        GITMAX2(i) = K2C*exp(-K2BETA2*(TOPT2-t(i))^2.);
+    end
+end
+
+figure;
+plot(t,GITMAX1,t,GITMAX2);
+set(gcf,'color','w');
+legend('Lenes et al., 2012','Model');

@@ -36,7 +36,9 @@ for i=1:11
     if(out_date(1)>=t_min&&out_date(end)<=t_max)
         river_temp(i,:) = interp1(t_dat{i}(:,1),t_dat{i}(:,2),out_date);
     else
-        river_temp(i,:) = interp1(0:365,t_m{i}(:,2),out_date-out_date(1));
+        tmp = interp1(0:365,t_m{i}(:,2),out_date-out_date(1));
+        tmp(isnan(tmp)) = interp1(0:365,t_m{i}(:,2),out_date(isnan(tmp))-out_date(1),'nearest','extrap');
+        river_temp(i,:) = tmp;
     end
 end
 
@@ -49,10 +51,32 @@ for i=1:11
         if(out_date(1)>=t_min&&out_date(end)<=t_max)
             river_salt(i,:) = interp1(t_dat{i}(:,1),t_dat{i}(:,2),out_date);
         else
-            river_salt(i,:) = interp(0:365,t_m{i}(:,2),out_date-out_date(1));
+            tmp = interp1(0:365,t_m{i}(:,2),out_date-out_date(1));
+            tmp(isnan(tmp)) = interp1(0:365,t_m{i}(:,2),out_date(isnan(tmp))-out_date(1),'nearest','extrap');
+            river_salt(i,:) = tmp;
         end
     else
         river_salt(i,:) = zeros(size(out_date));
+    end
+end
+
+if(isfield(t,'tss_dat'))
+    t_dat = t.tss_dat;
+    t_m = t.tss_mean;
+    for i=1:11
+        if(~isempty(t_dat{i}))
+            t_min = min(t_dat{i}(:,1));
+            t_max = max(t_dat{i}(:,1));
+            if(out_date(1)>=t_min&&out_date(end)<=t_max)
+                river_tss(i,:) = interp1(t_dat{i}(:,1),t_dat{i}(:,2),out_date);
+            else
+                tmp = interp1(0:365,t_m{i}(:,2),out_date-out_date(1));
+                tmp(isnan(tmp)) = interp1(0:365,t_m{i}(:,2),out_date(isnan(tmp))-out_date(1),'nearest','extrap');
+                river_tss(i,:) = tmp;
+            end
+        else
+            river_tss(i,:) = zeros(size(out_date));
+        end
     end
 end
 

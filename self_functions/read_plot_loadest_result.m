@@ -1,10 +1,11 @@
-function [result_flow,result_conc] = read_plot_loadest_result(rname, varname, var_flag, n_river, out_date, fig_path)
+function [result_flow,result_conc] = read_plot_loadest_result(rname, varname, var_flag, n_river, out_date, fig_path, fn_WA, fn_calib)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 year = datevec(out_date(1));
 year = year(1);
-load(strcat('WA_',num2str(year),'.mat'));
-load(strcat('calib_',num2str(year),'.mat'));
+days = datenum(year+1,1,1)-datenum(year,1,1);
+load(fn_WA);
+load(fn_calib);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 result_flow = cell(n_river,length(varname));
@@ -25,7 +26,7 @@ for i=1:length(varname)
             flag = 1;
         end
     end
-    for j=1:366
+    for j=1:days+1
         result(j,:) = str2num(fgetl(fid));
         result_flow{river,i}(j) = result(j,3);
         tmp = result(j,4:6)*1e6/(result(j,3)*28.316847*24*3600); 

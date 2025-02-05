@@ -1,13 +1,35 @@
 clear all;close all;
-bay_mask = ncread('../Model_grid/ROMS_WFS_10river_grid_bay_mask.nc','mask_rho');
-grd = '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
+bay_mask = ncread('../Model_grid/ROMS_WFS_new_bay_mask.nc','mask_rho');
+grd = '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd,'lon_rho');
 lat = ncread(grd,'lat_rho');
 mask = ncread(grd,'mask_rho');
 gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd,'Cs_r'));
 dep = ncread(grd,'h');
-year = 2021;
+year = 2003;
+wrf_flag = 0;
+
+%scale_depth = get_scale_depth(dep,bay_mask,mask,0.82,0.9956);
+%wind_intens = 1.3*scale_depth;
+wind_intens = 1.;
+
+if(wrf_flag==0)
+    outname = strcat('../Atmosphere_forcing_preprocessing/atm_forcing_',num2str(year),'.mat');
+    tmp = load(outname,'out_date');
+    origin_date = tmp.out_date;
+else
+    outname = strcat('../WRF_result/merged_forcing_',num2str(year),'.mat');
+    tmp = load(outname,'out_date');
+    origin_date = tmp.out_date;
+end
+
+out_date1 = origin_date;
+out_date2 = [];
+
+time1 = out_date1-out_date1(1);
+time2 = out_date2-out_date1(1);
+
 fn1 = ['WFS_',num2str(year),'_Uwind1.nc'];
 fn2 = ['WFS_',num2str(year),'_Uwind2.nc'];
 fn3 = ['WFS_',num2str(year),'_Vwind1.nc'];
@@ -25,20 +47,6 @@ fn14 = ['WFS_',num2str(year),'_lwrad2.nc'];
 fn15 = ['WFS_',num2str(year),'_rain1.nc'];
 fn16 = ['WFS_',num2str(year),'_rain2.nc'];
 
-scale_depth = get_scale_depth(dep,bay_mask,mask,0.82,0.9956);
-%wind_intens = 1.3*scale_depth;
-wind_intens = 1.;
-
-origin_date = datenum(year,1,1,0,0,0):6/24:datenum(year,12,31,24,0,0);
-
-out_date1 = datenum(year,1,1,0,0,0):6/24:datenum(year,12,31,24,0,0);
-out_date2 = [];
-
-time1 = out_date1-out_date1(1);
-time2 = out_date2-out_date1(1);
-
-outname = strcat('atm_forcing_',num2str(year),'.mat');
-
 %UWIND
 clear out_i1 out_i2
 for i=1:length(out_date1)
@@ -52,7 +60,7 @@ for i=1:length(out_date2)
 end
 
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'u_out');
+load(outname,'u_out');
 %u_out2 = u_out;
 for ii=1:size(u_out,3)
     u_out2(:,:,ii) = u_out(:,:,ii).*wind_intens;
@@ -87,7 +95,7 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'v_out');
+load(outname,'v_out');
 %v_out2 = v_out;
 
 for ii=1:size(v_out,3)
@@ -122,7 +130,7 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'slp_out');
+load(outname,'slp_out');
 slp_out = slp_out/100;
 slp_out2 = slp_out;
 
@@ -155,7 +163,7 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'t_out');
+load(outname,'t_out');
 t_out = t_out-273.15;
 Tair = t_out(:,:,out_i1);
 if(sum(sum(sum(isnan(Tair))))>0)
@@ -186,7 +194,7 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'hum_out');
+load(outname,'hum_out');
 Qair = hum_out(:,:,out_i1);
 if(sum(sum(sum(isnan(Qair))))>0)
     pause;
@@ -216,8 +224,8 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'ssr_d_out');
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'ssr_u_out');
+load(outname,'ssr_d_out');
+load(outname,'ssr_u_out');
 ssr_out = ssr_d_out - ssr_u_out;
 %%%%%%%%%%%ssr correction%%%%%%%%%%%
 %ssr_out = ssr_out .* 0.85;
@@ -251,7 +259,7 @@ for i=1:length(out_date2)
     out_i2(i) = find(delta==min(delta));
 end
 
-load(strcat('../Atmosphere_forcing_preprocessing/',outname),'slr_d_out');
+load(outname,'slr_d_out');
 %%%%%%%%%%%slr correction%%%%%%%%%%%
 %slr_d_out = slr_d_out .* 0.85;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

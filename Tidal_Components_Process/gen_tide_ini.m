@@ -9,19 +9,19 @@
 
 clear all; close all;
 
-year = 2021;
+year = 2003;
 
 % toolbox path
 addpath(path,'../../COAWST/Tools/mfiles/roms_clm');
 
 % model grid
 %fn = '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-fn = '../Model_grid/ROMS_WFS_Piney.nc';
+fn = '../Model_grid/ROMS_WFS_new.nc';
 
 % OTPS output
-fn1='./OTPS/COAWST_TIDE_OUTPUT/coawst_el_ini.out';
-fn4='./OTPS/COAWST_TIDE_OUTPUT/coawst_u_ini.out';
-fn7='./OTPS/COAWST_TIDE_OUTPUT/coawst_v_ini.out';
+fn1=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_el_ini.out'];
+fn4=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_u_ini.out'];
+fn7=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_v_ini.out'];
 
 fid1 = fopen(fn1,'r');
 fid4 = fopen(fn4,'r');

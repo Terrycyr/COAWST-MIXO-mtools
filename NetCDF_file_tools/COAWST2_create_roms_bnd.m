@@ -9,27 +9,28 @@ clear all; close all;
 % 5. sed_flag, dye_flag and river_bnd
 % 6. adjust_tide and adjust_el
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath(path,'C:\Users\cheny\Desktop\EcoHAB\NC_file_generation');
 
-%grd_name =  '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-grd_name =  '../Model_grid/ROMS_WFS_Piney.nc';
+grd_name =  '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
 gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd_name,'Cs_r'));
-sed_flag = 0;
-dye_flag=1;
+NCS = 0;
+NNS = 0;
+dye_flag=0;
 river_bnd = 0;
 adjust_tide = 1.;
 %adjust_el = mean(mean(s_el_final(:,1:l_period)));
 adjust_el = 0.35;
 
-year = 2021;
-nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/Detided_GOM_HYCOM/';
-nontidal_dataset_source = 'GOMu0.04/expt_90.1m000';
-%nontidal_dataset_source = 'GLBy0.08/expt_93.0';
+year = 2003;
+nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/';
+%nontidal_dataset_source = 'GLBy0.08/expt_56.3_57.2';
+nontidal_dataset_source = 'GLBv0.08/expt_53.X';
 
-fn = ['WFS_',num2str(year),'_bry_detide.nc'];
+fn = ['WFS_',num2str(year),'_bry.nc'];
 date_out3d = datenum(year,1,1,0,0,0):6/24:datenum(year,12,31,24,0,0);
 date_out2d = datenum(year,1,1,0,0,0):1/24:datenum(year,12,31,24,0,0);
 
@@ -45,7 +46,7 @@ else
     t_clim3 = [];
 end
 
-create_roms_netcdf_bndry_mwUL(fn,gn,t_clim,t_clim2,t_clim3,nontidal_dataset_source);
+create_roms_netcdf_bndry_mwUL(fn,gn,t_clim,t_clim2,t_clim3,NCS,NNS,nontidal_dataset_source);
 
 [r,c] = size(lon);
 zeta_time = date_out2d - date_out2d(1);
@@ -56,8 +57,13 @@ temp_time = date_out3d - date_out3d(1);
 if(dye_flag==1)
     dye_time = date_out_dye - date_out_dye(1);
 end
-if(sed_flag==1)
-    mud_time = date_out2d - date_out2d(1);
+
+if(NCS>0)
+    mud_time = date_out3d - date_out3d(1);
+end
+
+if(NNS>0)
+    sand_time = date_out3d - date_out3d(1);
 end
 
 load(strcat('../Tidal_component_preprocessing/tide_bnd_',num2str(year),'.mat'));
@@ -188,54 +194,35 @@ e_s = e_s_out;
 %s_s = s_s2;
 %e_s = e_s2;
 
-% tmp = s_s(30:end,1:17,:);
-% tmp(tmp<36) = 36;
-% s_s(30:end,1:17,:) = tmp;
-% % 
-% tmp = e_s(:,1:17,:);
-% tmp(tmp<36) = 36;
-% e_s(:,1:17,:) = tmp;
-% % 
-% tmp = n_s(442:end,1:17,:);
-% tmp(tmp<36) = 36;
-% n_s(442:end,1:17,:) = tmp;
 
-
-if(sed_flag==1)
+if(NCS>0)
     %mud
-    n_mud013 = zeros(r,gn.N,length(mud_time));
-    s_mud013 = zeros(r,gn.N,length(mud_time));
-    w_mud013 = zeros(r,gn.N,length(mud_time));
-    e_mud013 = zeros(r,gn.N,length(mud_time));
-
-    n_mud023 = zeros(r,gn.N,length(mud_time));
-    s_mud023 = zeros(r,gn.N,length(mud_time));
-    w_mud023 = zeros(r,gn.N,length(mud_time));
-    e_mud023 = zeros(r,gn.N,length(mud_time));
-
-    n_mud033 = river_mud03;
-    s_mud033 = zeros(r,gn.N,length(mud_time));
-    w_mud033 = zeros(r,gn.N,length(mud_time));
-    e_mud033 = zeros(r,gn.N,length(mud_time));
-
-    n_mud043 = river_mud01;
-    s_mud043 = zeros(r,gn.N,length(mud_time));
-    w_mud043 = zeros(r,gn.N,length(mud_time));
-    e_mud043 = zeros(r,gn.N,length(mud_time));
-
-    n_mud053 = river_mud02;
-    s_mud053 = zeros(r,gn.N,length(mud_time));
-    w_mud053 = zeros(r,gn.N,length(mud_time));
-    e_mud053 = zeros(r,gn.N,length(mud_time));
+    for i=1:NCS
+        eval(strcat('n_mud',sprintf('%02d',i),' = zeros(r,gn.N,length(mud_time));'));
+        eval(strcat('s_mud',sprintf('%02d',i),' = zeros(r,gn.N,length(mud_time));'));
+%         eval(strcat('w_mud',sprintf('%02d',i),' = zeros(c,gn.N,length(mud_time));'));
+        eval(strcat('e_mud',sprintf('%02d',i),' = zeros(c,gn.N,length(mud_time));'));
+    end
 end
 
-
+if(NNS>0)
+    %sand
+    for i=1:NNS
+        eval(strcat('n_sand',sprintf('%02d',i),' = zeros(r,gn.N,length(mud_time));'));
+        eval(strcat('s_sand',sprintf('%02d',i),' = zeros(r,gn.N,length(sand_time));'));
+%         eval(strcat('w_sand',sprintf('%02d',i),' = zeros(c,gn.N,length(sand_time));'));
+        eval(strcat('e_sand',sprintf('%02d',i),' = zeros(c,gn.N,length(sand_time));'));
+    end
+end
 
 % write variable
 ncwrite(fn,'zeta_time',zeta_time);
 ncwrite(fn,'v2d_time',v2d_time);
-if(sed_flag==1)
+if(NCS>0)
     ncwrite(fn,'mud_time',mud_time);
+end
+if(NNS>0)
+    ncwrite(fn,'sand_time',sand_time);
 end
 ncwrite(fn,'v3d_time',v3d_time);
 ncwrite(fn,'temp_time',temp_time);
@@ -294,40 +281,30 @@ if(dye_flag==1)
  ncwrite(fn,'dye_east_01',e_tracer01);
 end
 
-if(sed_flag==1)
-
-ncwrite(fn,'mud_north_01',n_mud013);
-ncwrite(fn,'mud_south_01',s_mud013);
-ncwrite(fn,'mud_west_01',w_mud013);
-ncwrite(fn,'mud_east_01',e_mud013);
-
-ncwrite(fn,'mud_north_02',n_mud023);
-ncwrite(fn,'mud_south_02',s_mud023);
-ncwrite(fn,'mud_west_02',w_mud023);
-ncwrite(fn,'mud_east_02',e_mud023);
-
-ncwrite(fn,'mud_north_03',n_mud033);
-ncwrite(fn,'mud_south_03',s_mud033);
-ncwrite(fn,'mud_west_03',w_mud033);
-ncwrite(fn,'mud_east_03',e_mud033);
-
-ncwrite(fn,'mud_north_04',n_mud043);
-ncwrite(fn,'mud_south_04',s_mud043);
-ncwrite(fn,'mud_west_04',w_mud043);
-ncwrite(fn,'mud_east_04',e_mud043);
-
-ncwrite(fn,'mud_north_05',n_mud053);
-ncwrite(fn,'mud_south_05',s_mud053);
-ncwrite(fn,'mud_west_05',w_mud053);
-ncwrite(fn,'mud_east_05',e_mud053);
-
+if(NCS>0)
+    for i=1:NCS
+    eval(strcat('ncwrite(fn,''mud_north_',sprintf('%02d',i),''',n_mud',sprintf('%02d',i),');'));
+    eval(strcat('ncwrite(fn,''mud_south_',sprintf('%02d',i),''',s_mud',sprintf('%02d',i),');'));
+%     eval(strcat('ncwrite(fn,''mud_west_',sprintf('%02d',i),''',w_mud',sprintf('%02d',i),');'));
+    eval(strcat('ncwrite(fn,''mud_east_',sprintf('%02d',i),''',e_mud',sprintf('%02d',i),');'));
+    end
 end
+
+if(NNS>0)
+    for i=1:NNS
+    eval(strcat('ncwrite(fn,''sand_north_',sprintf('%02d',i),''',n_sand',sprintf('%02d',i),');'));
+    eval(strcat('ncwrite(fn,''sand_south_',sprintf('%02d',i),''',s_sand',sprintf('%02d',i),');'));
+%     eval(strcat('ncwrite(fn,''sand_west_',sprintf('%02d',i),''',w_sand',sprintf('%02d',i),');'));
+    eval(strcat('ncwrite(fn,''sand_east_',sprintf('%02d',i),''',e_sand',sprintf('%02d',i),');'));
+    end
+end
+
 
 for i=1:l_period-24
     z_north(i) = mean(squeeze(n_el_final(447,i:i+24)));
     z_south(i) = mean(squeeze(s_el_final(200,i:i+24)));
-     z_east(i) = mean(squeeze(e_el_final(5,i:i+24)));
 %     z_west(i) = mean(squeeze(w_el_final(5,i:i+24)));
+    z_east(i) = mean(squeeze(e_el_final(5,i:i+24)));
 end
 
 figure(1);
@@ -335,10 +312,10 @@ plot(z_north,'r');
 hold on;
 plot(z_south,'g');
 hold on;
-plot(z_east,'b');
-hold on;
 % plot(z_west,'y');
 % hold on;
+plot(z_east,'b');
+hold on;
 
 legend('North','South','East');
 

@@ -1,9 +1,9 @@
 function [salt_dat,salt_mean] = pre_preocess_river_salt(fn,n_river)
-
+addpath(path,'C:\Users\cheny\Desktop\EcoHAB\self_functions');
 for i=1:n_river
     tmp = xlsread(fn,i);
     if(~isempty(~isnan(tmp)))
-        tmp(:,1) = datenum(1900,1,1)+tmp(:,1)+5/24;
+        tmp(:,1) = xlstime2date(tmp(:,1));
         salt_raw{i} = tmp;
         time_min(i) = min(tmp(:,1));
         time_max(i) = max(tmp(:,1));

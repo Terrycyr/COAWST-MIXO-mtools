@@ -10,15 +10,14 @@ clear all;
 % 6. tidal_hycom and el_adjust, mostly tidal_hycom = 0 to use non-tidal
 % parts from HYCOM.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+addpath(path,'C:\Users\cheny\Desktop\EcoHAB\NC_file_generation');
 
-year = 2021;
-nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/Detided_GOM_HYCOM/';
-nontidal_dataset_source = 'GOMu0.04/expt_90.1m000';
-%nontidal_dataset_source = 'GLBy0.08/expt_93.0';
+year = 2002;
+nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/';
+nontidal_dataset_source = 'GLBv0.08/expt_53.X';
 
-init_file = ['WFS_',num2str(year),'_ini_detide.nc']; delete(init_file);
-%grd_name =  '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-grd_name =  '../Model_grid/ROMS_WFS_Piney.nc';
+init_file = ['WFS_',num2str(year),'_ini.nc']; delete(init_file);
+grd_name =  '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
@@ -28,15 +27,17 @@ gn.N =length(ncread(grd_name,'Cs_r'));
 N=gn.N;
 Nbed = 0;
 NNS = 0;
-NCS =0;
+NCS = 0;
 Nveg=0;
 NBT=0;
-NDYE=1;
+NDYE=0;
 sed_flag=0;
-dye_flag=1;
-tidal_hycom = 1;
+dye_flag=0;
+tidal_hycom = 0;
 nonzero_ini = 0;
 el_adjust = 0.0;
+
+mgl2kgm3 = 0.001;
 
 load(strcat('../Tidal_component_preprocessing/tide_ini_',num2str(year),'.mat'));
 load(strcat(nontidal_dataset_dir,'non_tidal_ini_',num2str(year),'.mat'));
@@ -77,61 +78,109 @@ Cs_r = ncread(grd_name,'Cs_r');
 s_w = ncread(grd_name,'s_w');
 s_rho = ncread(grd_name,'s_rho');
 
-settling_vel(1:r,1:c) = 1.0e-04;
-erosion_stress(1:r,1:c) = 5.0e-05;
-grain_diameter(1:r,1:c) = 8.0e-06;
+settling_vel(1:r,1:c) = 9.8985e-04;
+erosion_stress(1:r,1:c) = 6.8986e-05;
+grain_diameter(1:r,1:c) = 3.2000e-05;
 
 if(sed_flag==1)
-    load('./clay_grid2_zh.mat');
-    load('./silt_grid2_zh.mat');
-    load('./sand_grid2_zh.mat');
-    mud_01(1:r,1:c,gn.N) = 0;
-    mud_02(1:r,1:c,gn.N) = 0;
-    mud_03(1:r,1:c,gn.N) = 0;
-    mud_04(1:r,1:c,gn.N) = 0;
-    mud_05(1:r,1:c,gn.N) = 0;
+    load(strcat('../Water_Atlas/','bay_ini_',num2str(year),'.mat'),'tss_bay');
+    load('../Sediment/usSEABED/WFS_seabed.mat');
 
-    mud_poros(1:r,1:c,1:Nbed) = 0.672d0;
-    bed_thickness(1:r,1:c,1) = 0.05; 
-    bed_thickness(1:r,1:c,2) = 0.03; 
-    bed_thickness(1:r,1:c,3) = 3.00; 
+    %Parameters
+    water_silt_clay_frac = 0.4;
+    water_sand_frac = 0.6;
 
-    grain_density(1:r,1:c) = 2650;
-    
-    for i=1:Nbed
-        mudfrac_01(:,:,i) = clay_grid2;
-        mudfrac_02(:,:,i) = silt_grid2;
-        mudfrac_03(:,:,i) = sand_grid2;
-        mudfrac_04(:,:,i) = zeros(size(clay_grid2));
-        mudfrac_05(:,:,i) = zeros(size(clay_grid2));
-
-        mudmass_01(:,:,i) = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_01(:,:,i);
-        mudmass_02(:,:,i) = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_02(:,:,i);
-        mudmass_03(:,:,i) = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_03(:,:,i);
-        mudmass_04(:,:,i) = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_04(:,:,i);
-        mudmass_05(:,:,i) = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_05(:,:,i);
-
-        mudfrac_01(isnan(mudfrac_01)) = 0.0;
-        mudfrac_02(isnan(mudfrac_02)) = 0.0;
-        mudfrac_03(isnan(mudfrac_03)) = 0.0;
-        mudfrac_04(isnan(mudfrac_03)) = 0.0;
-        mudfrac_05(isnan(mudfrac_03)) = 0.0;
-
-        mudmass_01(isnan(mudmass_01)) = 0.0;
-        mudmass_02(isnan(mudmass_02)) = 0.0;
-        mudmass_03(isnan(mudmass_03)) = 0.0;
-        mudmass_04(isnan(mudmass_03)) = 0.0;
-        mudmass_05(isnan(mudmass_03)) = 0.0;
+    if(NCS>0)
+        mud_poros(1:r,1:c,1:Nbed) = 0.672d0;
+    end
+    if(NNS>0)
+        sand_poros(1:r,1:c,1:Nbed) = 0.672d0;
     end
 
+    grain_density(1:r,1:c) = 2650;
+    bed_thickness(1:r,1:c,1) = 0.05;
+    bed_thickness(1:r,1:c,2) = 0.05;
+    bed_thickness(1:r,1:c,3) = 3.00;
     bed_age(1:r,1:c,1:Nbed) = 0.d0;
-    bed_porosity = mud_poros;
+
+    if(NCS>0)
+        bed_porosity = mud_poros;
+    end
+    if(NNS>0)
+        bed_porosity = sand_poros;
+    end
     bed_biodiff(1:r,1:c,1:Nbed) = 0.0;
-    bed_tau_crit(1:r,1:c,1:Nbed) = 0.05;
+    bed_tau_crit(1:r,1:c,1:Nbed) = 0.1;
     dmix_offset(1:r,1:c) = -0.4690;
     dmix_slope(1:r,1:c) = 1;
     dmix_time(1:r,1:c) = 0;
     ripple_height(1:r,1:c) = 0.01;
+    
+    %Initialize
+    if(NCS>0)
+        for i=1:NCS
+            eval(strcat('mud_',sprintf('%02d',i),'(1:r,1:c,1:gn.N) = 0;'));
+        end
+
+        mud_01(1:r,1:c,1:gn.N) = tss_bay*mgl2kgm3*water_silt_clay_frac;
+        mud_02(1:r,1:c,1:gn.N) = tss_bay*mgl2kgm3*water_sand_frac;
+
+        %Remove NaNs
+        for i=1:NCS
+            eval(strcat('mud_',sprintf('%02d',i),'(isnan(mud_',sprintf('%02d',i),')) = 0;'));
+        end
+
+        for i=1:Nbed
+            mudfrac_01(:,:,i) = silt_clay_frac;
+            mudfrac_02(:,:,i) = sand_frac;
+
+            %make sure none of classes is less than 5%
+            mudfrac_02(mudfrac_01<0.05) = 0.95;
+            mudfrac_01(mudfrac_01<0.05) = 0.05;
+
+            mudfrac_01(mudfrac_02<0.05) = 0.95;
+            mudfrac_02(mudfrac_02<0.05) = 0.05;
+
+
+            for j=1:NCS
+                eval(strcat('mudmass_',sprintf('%02d',j),'(:,:,i)',...
+                    ' = bed_thickness(:,:,i).*grain_density.*(1-mud_poros(:,:,i)).*mudfrac_',...
+                    sprintf('%02d',j),'(:,:,i);'));
+
+                eval(strcat('mudfrac_',sprintf('%02d',j),'(isnan(mudfrac_',sprintf('%02d',j),')) = 0.0;'));
+                eval(strcat('mudmass_',sprintf('%02d',j),'(isnan(mudmass_',sprintf('%02d',j),')) = 0.0;'));
+            end
+        end
+    end
+
+    if(NNS>0)
+        for i=1:NNS
+            eval(strcat('sand_',sprintf('%02d',i),'(1:r,1:c,1:gn.N) = 0;'));
+        end
+
+        sand_01(1:r,1:c,1:gn.N) = tss_bay*water_silt_clay_frac;
+        sand_02(1:r,1:c,1:gn.N) = tss_bay*water_sand_frac;
+
+        %Remove NaNs
+        for i=1:NNS
+            eval(strcat('sand_',sprintf('%02d',i),'(isnan(sand_',sprintf('%02d',i),')) = 0;'));
+        end
+
+        for i=1:Nbed
+            sandfrac_01(:,:,i) = silt_clay_frac(:,:,i);
+            sandfrac_02(:,:,i) = sand_frac(:,:,i);
+
+
+            for j=1:NNS
+                eval(strcat('sandmass_',sprintf('%02d',j),'(:,:,i)',...
+                    ' = bed_thickness(:,:,i).*grain_density.*(1-sand_poros(:,:,i)).*sandfrac_',...
+                    sprintf('%02d',j),'(:,:,i);'));
+
+                eval(strcat('sandfrac_',sprintf('%02d',j),'(isnan(sandfrac_',sprintf('%02d',j),')) = 0.0;'));
+                eval(strcat('sandmass_',sprintf('%02d',j),'(isnan(sandmass_',sprintf('%02d',j),')) = 0.0;'));
+            end
+        end
+    end
 end    
 
 if(tidal_hycom==1)
@@ -175,35 +224,36 @@ ncwrite(init_file,'Vstretching',Vstretching);
 ncwrite(init_file,'spherical',spherical);
 
 if(sed_flag==1)
-    ncwrite(init_file,'mud_01',mud_01);
-    ncwrite(init_file,'mud_02',mud_02);
-    ncwrite(init_file,'mud_03',mud_03);
-    ncwrite(init_file,'mud_04',mud_04);
-    ncwrite(init_file,'mud_05',mud_05);
+    if(NCS>0)
+        for i=1:NCS
+            eval(strcat('ncwrite(init_file,''mud_',sprintf('%02d',i),''',mud_',sprintf('%02d',i),');'));
+            eval(strcat('ncwrite(init_file,''mudfrac_',sprintf('%02d',i),''',mudfrac_',sprintf('%02d',i),');'));
+            eval(strcat('ncwrite(init_file,''mudmass_',sprintf('%02d',i),''',mudmass_',sprintf('%02d',i),');'));
+        end
+    end
 
-    ncwrite(init_file,'mudfrac_01',mudfrac_01);
-    ncwrite(init_file,'mudfrac_02',mudfrac_02);
-    ncwrite(init_file,'mudfrac_03',mudfrac_03);
-    ncwrite(init_file,'mudfrac_04',mudfrac_04);
-    ncwrite(init_file,'mudfrac_05',mudfrac_05);
-
-    ncwrite(init_file,'mudmass_01',mudmass_01);
-    ncwrite(init_file,'mudmass_02',mudmass_02);
-    ncwrite(init_file,'mudmass_03',mudmass_03);
-    ncwrite(init_file,'mudmass_04',mudmass_04);
-    ncwrite(init_file,'mudmass_05',mudmass_05);
+    if(NNS>0)
+        for i=1:NNS
+            eval(strcat('ncwrite(init_file,''sand_',sprintf('%02d',i),''',sand_',sprintf('%02d',i),');'));
+            eval(strcat('ncwrite(init_file,''sandfrac_',sprintf('%02d',i),''',sandfrac_',sprintf('%02d',i),');'));
+            eval(strcat('ncwrite(init_file,''sandmass_',sprintf('%02d',i),''',sandmass_',sprintf('%02d',i),');'));
+        end
+    end
 
     ncwrite(init_file,'bed_thickness',bed_thickness);
     ncwrite(init_file,'bed_age',bed_age);
     ncwrite(init_file,'bed_porosity',bed_porosity);
     ncwrite(init_file,'bed_biodiff',bed_biodiff);
+    ncwrite(init_file,'bed_tau_crit',bed_tau_crit);
     
     ncwrite(init_file,'ripple_height',ripple_height);
     ncwrite(init_file,'dmix_offset',dmix_offset);
     ncwrite(init_file,'dmix_slope',dmix_slope);
     ncwrite(init_file,'dmix_time',dmix_time);
-    ncwrite(init_file,'grain_density',grain_density);
+
+    ncwrite(init_file,'grain_density',grain_density);   
 end
+
 
 ncwrite(init_file,'grain_diameter',grain_diameter);
 ncwrite(init_file,'settling_vel',settling_vel);

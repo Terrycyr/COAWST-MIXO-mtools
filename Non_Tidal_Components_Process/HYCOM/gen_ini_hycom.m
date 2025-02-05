@@ -15,13 +15,13 @@ addpath(path,'../../../COAWST/Tools/mfiles/rutgers/utility');
 addpath(path,'../../../COAWST/Tools/mfiles/roms_clm');
 
 % Output time
-year = 2022;
+year = 2003
 date_out3d = datenum(year,1,1,0,0,0):6/24:datenum(year,12,31,24,0,0);
 date_out2d = datenum(year,1,1,0,0,0):1/24:datenum(year,12,31,24,0,0);
 
 % model grid  !!!!!!!!!!!!!
 %fn = '../../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-fn = '../../Model_grid/ROMS_WFS_piney.nc';
+fn = '../../Model_grid/ROMS_WFS_new.nc';
 
 % params.
 n_hycomlayer = 40;
@@ -195,9 +195,10 @@ save(strcat('non_tidal_ini_',num2str(year),'.mat'),'v_ini_out','-append');
 save(strcat('non_tidal_ini_',num2str(year),'.mat'),'u2d_ini_out','-append');
 save(strcat('non_tidal_ini_',num2str(year),'.mat'),'v2d_ini_out','-append');
 
+%%
 %Figures for checking
 figure;
-quiver(lon_u(:,1:end-1),lat_u(:,1:end-1),u4(:,1:end-1,end),v4(1:end-1,:,end),0,'r');
+quiver(lon_u(:,1:end-1),lat_u(:,1:end-1),u4(:,1:end-1,end),v4(1:end-1,:,end),0,'color',[0.6 0.6 0.6]);
 hold on;
 quiver(lon_u(:,1:end-1),lat_u(:,1:end-1),u_ini_out(:,1:end-1,end),v_ini_out(1:end-1,:,end),0);
 title('Surface Velocity');

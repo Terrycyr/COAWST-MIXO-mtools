@@ -1,26 +1,85 @@
 clear all; close all;
-grd_name =  '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
+addpath(path,'C:\Users\cheny\Desktop\EcoHAB\NC_file_generation');
+
+grd_name =  '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
 gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd_name,'Cs_r'));
-fn = 'WFS_2002_bry_bio.nc';
+fn = 'WFS_2005_2006_bry_bio_mixo.nc';
 
-n_river = 10;
 dir_flag = [1 1 0 1]; %S N W E
 
-date_out = datenum(2002,1,1,0,0,0):1:datenum(2002,12,31,24,0,0);
-time_ref = datenum(2002,4,1);
-year = datevec(date_out(1));
+date_bry = datenum(2005,1,1,0,0,0):1:datenum(2006,2,1,0,0,0);
+time_ref = datenum(2005,6,1);
+year = datevec(date_bry(1));
 year = year(1);
 %bio_time = date_out - date_out(1);
-bio_time = date_out - time_ref;
-t = length(date_out);
+bio_time = date_bry - time_ref;
+t = length(date_bry);
 create_roms_netcdf_bndry_eutr(fn,gn,t,dir_flag)
 const_initialize(fn,0.);
+nutri_adjust = 1.0;
+
+load(strcat('../GOM_preprocessing/','ocean_nutrients_bnd_',num2str(year+1),'.mat'));
+s_do1 = s_do;
+s_don1 = s_don;
+s_nh41 = s_nh4;
+s_no31 =s_no3;
+s_po41 = s_po4;
+s_sa11 = s_sal;
+s_si1 = s_si;
+s_temp1 = s_temp;
+
+n_do1 = n_do;
+n_don1 = n_don;
+n_nh41 = n_nh4;
+n_no31 =n_no3;
+n_po41 = n_po4;
+n_sa11 = n_sal;
+n_si1 = n_si;
+n_temp1 = n_temp;
+
+e_do1 = e_do;
+e_don1 = e_don;
+e_nh41 = e_nh4;
+e_no31 =e_no3;
+e_po41 = e_po4;
+e_sa11 = e_sal;
+e_si1 = e_si;
+e_temp1 = e_temp;
 
 load(strcat('../GOM_preprocessing/','ocean_nutrients_bnd_',num2str(year),'.mat'));
+merge_range1 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)];
+merge_range2 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)]-size(s_do,3)+1;
+
+s_do(:,:,merge_range1(1):merge_range1(2)) = s_do1(:,:,merge_range2(1):merge_range2(2));
+s_don(:,:,merge_range1(1):merge_range1(2)) = s_don1(:,:,merge_range2(1):merge_range2(2));
+s_nh4(:,:,merge_range1(1):merge_range1(2)) = s_nh41(:,:,merge_range2(1):merge_range2(2));
+s_no3(:,:,merge_range1(1):merge_range1(2)) = s_no31(:,:,merge_range2(1):merge_range2(2));
+s_po4(:,:,merge_range1(1):merge_range1(2)) = s_po41(:,:,merge_range2(1):merge_range2(2));
+s_sa1(:,:,merge_range1(1):merge_range1(2)) = s_sal(:,:,merge_range2(1):merge_range2(2));
+s_si(:,:,merge_range1(1):merge_range1(2)) = s_si1(:,:,merge_range2(1):merge_range2(2));
+s_temp(:,:,merge_range1(1):merge_range1(2)) = s_temp1(:,:,merge_range2(1):merge_range2(2));
+
+n_do(:,:,merge_range1(1):merge_range1(2)) = n_do1(:,:,merge_range2(1):merge_range2(2));
+n_don(:,:,merge_range1(1):merge_range1(2)) = n_don1(:,:,merge_range2(1):merge_range2(2));
+n_nh4(:,:,merge_range1(1):merge_range1(2)) = n_nh41(:,:,merge_range2(1):merge_range2(2));
+n_no3(:,:,merge_range1(1):merge_range1(2)) = n_no31(:,:,merge_range2(1):merge_range2(2));
+n_po4(:,:,merge_range1(1):merge_range1(2)) = n_po41(:,:,merge_range2(1):merge_range2(2));
+n_sa1(:,:,merge_range1(1):merge_range1(2)) = n_sal(:,:,merge_range2(1):merge_range2(2));
+n_si(:,:,merge_range1(1):merge_range1(2)) = n_si1(:,:,merge_range2(1):merge_range2(2));
+n_temp(:,:,merge_range1(1):merge_range1(2)) = n_temp1(:,:,merge_range2(1):merge_range2(2));
+
+e_do(:,:,merge_range1(1):merge_range1(2)) = e_do1(:,:,merge_range2(1):merge_range2(2));
+e_don(:,:,merge_range1(1):merge_range1(2)) = e_don1(:,:,merge_range2(1):merge_range2(2));
+e_nh4(:,:,merge_range1(1):merge_range1(2)) = e_nh41(:,:,merge_range2(1):merge_range2(2));
+e_no3(:,:,merge_range1(1):merge_range1(2)) = e_no31(:,:,merge_range2(1):merge_range2(2));
+e_po4(:,:,merge_range1(1):merge_range1(2)) = e_po41(:,:,merge_range2(1):merge_range2(2));
+e_sa1(:,:,merge_range1(1):merge_range1(2)) = e_sal(:,:,merge_range2(1):merge_range2(2));
+e_si(:,:,merge_range1(1):merge_range1(2)) = e_si1(:,:,merge_range2(1):merge_range2(2));
+e_temp(:,:,merge_range1(1):merge_range1(2)) = e_temp1(:,:,merge_range2(1):merge_range2(2));
 
 %DISSOLVED & PARTICULATE, Riverine
 OCDP_r = 0.84;
@@ -52,6 +111,8 @@ e_on = e_don*scale/ONDP_r_off;
 n_oc = n_on*5;
 s_oc = s_on*5;
 e_oc = e_on*5;
+
+[m_Ccell,a_Ccell] = get_Ccell;
 
 %
 for layer = 1:gn.N
@@ -104,42 +165,46 @@ end
 PHYT1_south = ones(size(SIT_south))*1e-6;
 PHYT2_south = ones(size(SIT_south))*1e-8;
 PHYT3_south = ones(size(SIT_south))*1e-5;
+A_C_south = ones(size(SIT_south))*1e7*a_Ccell; %1e7 cells/l
 
 PHYT1_north = ones(size(SIT_north))*1e-6;
 PHYT2_north = ones(size(SIT_north))*1e-8;
 PHYT3_north = ones(size(SIT_north))*1e-5;
+A_C_north = ones(size(SIT_north))*1e7*a_Ccell; %1e7 cells/l
 
 PHYT1_east = ones(size(SIT_east))*1e-6;
 PHYT2_east = ones(size(SIT_east))*1e-8;
 PHYT3_east = ones(size(SIT_east))*1e-5;
+A_C_east = ones(size(SIT_east))*1e7*a_Ccell; %1e7 cells/l
 
 
 ncwrite(fn,'bio_time',bio_time);
 vname = {'SAL','PHYT1','PHYT2','PHYT3','RPOP','LPOP','RDOP','LDOP','PO4T'...
     ,'RPON','LPON','RDON','LDON','NH4T','NO23','BSI','SIT','RPOC','LPOC'...
-    ,'RDOC','LDOC','EXDOC','REPOC','REDOC','O2EQ','DO','A_C','A_CHLC','A_NC'...
+    ,'RDOC','LDOC','EXDOC','TA','DIC','O2EQ','DO','A_C','A_CHLC','A_NC'...
     ,'A_PC','M_AVGCU','M_C','M_CHLC','M_FC','M_FCHLC','M_NC','M_PC','MFNC','MFPC'};
 for ivar = 1:39
     eval(['ncwrite(fn,''',vname{ivar},'_time'',bio_time);']);
 end
 %south
 ncwrite(fn,'SAL_south',SAL_south);
-ncwrite(fn,'SIT_south',SIT_south);
+ncwrite(fn,'SIT_south',SIT_south*nutri_adjust);
 ncwrite(fn,'DO_south',DO_south);
-ncwrite(fn,'NO23_south',NO23_south);
-ncwrite(fn,'NH4T_south',NH4T_south);
-ncwrite(fn,'PO4T_south',PO4T_south);
+ncwrite(fn,'NO23_south',NO23_south*nutri_adjust);
+ncwrite(fn,'NH4T_south',NH4T_south*nutri_adjust);
+ncwrite(fn,'PO4T_south',PO4T_south*nutri_adjust);
 ncwrite(fn,'PHYT1_south',PHYT1_south);
 ncwrite(fn,'PHYT2_south',PHYT2_south);
 ncwrite(fn,'PHYT3_south',PHYT3_south);
-ncwrite(fn,'RDON_south',RDON_south);
-ncwrite(fn,'LDON_south',LDON_south);
-ncwrite(fn,'RPON_south',RPON_south);
-ncwrite(fn,'LPON_south',LPON_south);
-ncwrite(fn,'RDOC_south',RDOC_south);
-ncwrite(fn,'LDOC_south',LDOC_south);
-ncwrite(fn,'RPOC_south',RPOC_south);
-ncwrite(fn,'LPOC_south',LPOC_south);
+ncwrite(fn,'A_C_south',A_C_south);
+ncwrite(fn,'RDON_south',RDON_south*nutri_adjust);
+ncwrite(fn,'LDON_south',LDON_south*nutri_adjust);
+ncwrite(fn,'RPON_south',RPON_south*nutri_adjust);
+ncwrite(fn,'LPON_south',LPON_south*nutri_adjust);
+ncwrite(fn,'RDOC_south',RDOC_south*nutri_adjust);
+ncwrite(fn,'LDOC_south',LDOC_south*nutri_adjust);
+ncwrite(fn,'RPOC_south',RPOC_south*nutri_adjust);
+ncwrite(fn,'LPOC_south',LPOC_south*nutri_adjust);
 
 % %north
 % ncwrite(fn,'SAL_north',SAL_north);
@@ -151,14 +216,15 @@ ncwrite(fn,'LPOC_south',LPOC_south);
 
 %east
 ncwrite(fn,'SAL_east',SAL_east);
-ncwrite(fn,'SIT_east',SIT_east);
+ncwrite(fn,'SIT_east',SIT_east*nutri_adjust);
 ncwrite(fn,'DO_east',DO_east);
-ncwrite(fn,'NO23_east',NO23_east);
-ncwrite(fn,'NH4T_east',NH4T_east);
-ncwrite(fn,'PO4T_east',PO4T_east);
+ncwrite(fn,'NO23_east',NO23_east*nutri_adjust);
+ncwrite(fn,'NH4T_east',NH4T_east*nutri_adjust);
+ncwrite(fn,'PO4T_east',PO4T_east*nutri_adjust);
 ncwrite(fn,'PHYT1_east',PHYT1_east);
 ncwrite(fn,'PHYT2_east',PHYT2_east);
 ncwrite(fn,'PHYT3_east',PHYT3_east);
+ncwrite(fn,'A_C_east',A_C_east);
 
 
 

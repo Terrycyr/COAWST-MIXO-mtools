@@ -2,13 +2,13 @@ clear all;
 
 product = 'hourly_height';
 application = 'NOS.COOPS.TAC.WL';
-begin_date = '20220101';
-end_date = '20230101';
+begin_date = '20230101';
+end_date = '20240101';
 datum = 'MSL';
 station = num2str(load("WF_stations.txt"));
 time_zone = 'GMT';
 units = 'metric';
-save_name = 'NOAA_Tide_WFS_2022.mat';
+save_name = 'NOAA_Tide_WFS_2023.mat';
 
 k=0;
 for i = 1:size(station,1)

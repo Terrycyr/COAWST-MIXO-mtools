@@ -1,27 +1,20 @@
 clear all;
+addpath(path,'./m_map');
 
-year = 2022;
+year=2005;
+%For K. brevis initial condition
+date_start = datenum(2005,5,1,0,0,0);
+date_end = datenum(2005,5,5,0,0,0);
 
-%1 uniform; 2 offshore only; high biomass; 3 bay only;  4 no syn.
-coast = 1; 
-
-if(coast==1)
-    init_file = ['WFS_',num2str(year),'_ini_bio.nc']; delete(init_file); 
-elseif(coast==2)
-    init_file = ['WFS_',num2str(year),'_ini_bio_offshore.nc']; delete(init_file);
-elseif(coast==3)
-    init_file = ['WFS_',num2str(year),'_ini_bio_bay.nc']; delete(init_file);
-elseif(coast==4)
-    init_file = ['WFS_',num2str(year),'_ini_bio_mixo_no_syn.nc']; delete(init_file);
-end
+init_file = ['WFS_',num2str(year),'_ini_bio.nc']; delete(init_file); 
 
 dataset_source = 'Data from CHNEP Water Atlas and literatures.';
 ot_start = 0.0;
-grd_name =  '../Model_grid/ROMS_WFS_new.nc';
+grd_name =  './ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
-bay_mask = ncread('../Model_grid/ROMS_WFS_new_bay_mask.nc','mask_rho');
+bay_mask = ncread('./ROMS_WFS_new_bay_mask.nc','mask_rho');
 dep = ncread(grd_name,'h');
 gn = struct('lon_rho',lon);
 gn.N =length(ncread(grd_name,'Cs_r'));
@@ -33,10 +26,19 @@ Nveg=0;
 NBT=24;
 bio_sed = 1;
 sed_flag=0;
+kb_bg = 100;
 create_roms_netcdf_init_mw(init_file,gn,Nbed,NNS,NCS,Nveg,NBT,0,bio_sed,dataset_source);
 const_initialize(init_file,0);
 
-kb_Ccell = 3.e-07;
+kb_Ccell = 3e-7; %0.3 ng/cell, Milroy et al., 2008
+syn_Ccell = 2.5e-10; % 2.5e-4 ng/cell, Heldal et al., 2003
+
+%Set initials for kb
+mat_data = './FWC_kb_dat_0006.mat';
+[kb_ini0,kb_lon,kb_lat,kb_dat] = gen_kb_ini(date_start,date_end,kb_bg,grd_name,mat_data,'mean');
+kb_ini0 = kb_ini0.*kb_Ccell;
+kb_ini0(kb_ini0<kb_bg*kb_Ccell) = kb_bg*kb_Ccell;
+kb_ini = repmat(kb_ini0,1,1,N);
 
 [r,c] = size(lon);
 N= length(ncread(grd_name,'Cs_r'));
@@ -53,24 +55,8 @@ s_w = ncread(grd_name,'s_w');
 s_rho = ncread(grd_name,'s_rho');
 
 %Set initials flags for K.b.
-if(coast==1)
-    coast_flag = ones(r,c,N);
-elseif(coast==2)
-    coast_flag = repmat(dep>25&dep<50,1,1,N);
-    coast_flag(250,92,:) = 0;
-    coast_flag(251,93,:) = 0;
-    coast_flag(1:120,:) = 0.;
-    coast_flag(420:end,:) = 0.;
+coast_flag = ones(r,c,N);
 
-    dep2 = repmat(dep,1,1,N);
-    dep_layer = dep2.*repmat(reshape(Cs_r,1,1,N),r,c,1);
-
-    coast_flag(abs(dep_layer)<25|abs(dep_layer)>50) = 0.;
-elseif(coast==3)
-    coast_flag = repmat(bay_mask,1,1,N);
-elseif(coast==4)
-    coast_flag = ones(r,c,N); 
-end
 
 %DISSOLVED & PARTICULATE, Riverine
 OCDP_r = 0.84;
@@ -94,37 +80,32 @@ OPLR_r_off = 0.35;
 
 %C/N,C/P,C/Si
 CRBP1 = 40.;
-CRBN1 = 5.67;
+CRBN1 = 6.3;
 CRBS1 = 3.;
-CRBP2 = 32.;
-CRBN2 = 6.3;
+
+CRBP2 = 32;
+CRBN2 = 5.67;
 CRBS2 = 1e21;
-CRBP3 = 62.;
-CRBN3 = 4.67;
+
+CRBP3 = 42;
+CRBN3 = 5.67;
 CRBS3 = 1e21;
 
 %Assume lees don in areas further to Tampa Bay and Charlotte Harbour. 
 scale_distance1 = get_scale_distance(lon,lat,bay_mask,mask,0.01,0.001);
 
-%Assume the decrease of DOM in sediments has a similar trend to DON.
-%scale_distance2 = get_scale_depth(dep,bay_mask,mask,0.01,0.947);
-
-%scale_distance = min(scale_distance1,scale_distance2);
-load('removed_points.mat');
-
+%Assume the increase of prey availability is inverse to depth
+scale_distance2 = get_scale_depth(dep,bay_mask,mask,0.01,0.8);
 scale_distance = scale_distance1;
-for i=1:length(r_i)
-    scale_distance(r_i(i),r_j(i)) = min(scale_distance(scale_distance>0));
-end
 
 %average sediment dry bulk density, consisted with M1, M2
 rho0 = 0.5*1000*1e6; %mg/m3
 
 %POM proportion in the sediment
-POMP = 0.01;
+POMP = 0.005;
 
 %proportion of OC,ON and OP in sediment, 
-%assumed Redfield Ratio and 1% OM in the estuarine sediment.
+%assumed Redfield Ratio and 0.5% OM in the estuarine sediment.
 for i=1:r
     for j=1:c
         NR = 16*14/(106*12+16*14+1*31);
@@ -133,7 +114,7 @@ for i=1:r
         OCP(i,j) = CR*POMP*scale_distance(i,j); %106
         ONP(i,j) = NR*POMP*scale_distance(i,j); %16
         OPP(i,j) = PR*POMP*scale_distance(i,j); %1
-        SP(i,j) = 0.002; % assumed decided by diatom, C:Si ~ 3
+        SP(i,j) = 0.02; % assumed decided by diatom, C:Si ~ 3
     end
 end
 
@@ -142,16 +123,11 @@ G1P = 0.005;
 G2P = 0.05;
 G3P = 1-G1P-G2P;
 
-date_out = datenum(2022,1,1,0,0,0);
-year = datevec(date_out(1));
-year = year(1);
-t = length(date_out);
-
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-load(strcat('../Water_Atlas/','bay_ini_',num2str(year),'.mat'));
-load(strcat('../GOM_preprocessing/','ocean_nutrients_ini_',num2str(year),'.mat'));
-load(strcat('../Tidal_component_preprocessing/tide_ini_',num2str(year),'.mat'));
-load(strcat('../Non_tidal_component_preprocessing/HYCOM/','non_tidal_ini_',num2str(year),'.mat'));
+load(strcat('./bay_ini_2005_05.mat'));
+load(strcat('./ocean_nutrients_ini_',num2str(year),'.mat'));
+load(strcat('./tide_ini_',num2str(year),'.mat'));
+load(strcat('./non_tidal_ini_',num2str(year),'.mat'));
 
 el_final = el_ini_out+tide_el_ini;
 u2d_final = u2d_ini_out+tide_u_ini;
@@ -169,7 +145,6 @@ for i=1:N
     tmp(mask==0) =0;
     s_ini_out(:,:,i) = tmp;  
 end
-
 
 %
 SAL_roms = s_ini_out;
@@ -191,23 +166,8 @@ RPOC = OC*(1-OCDP_r_off)*(1-OCLR_r_off);
 
 flag = 1;
 PHYT1_roms = ones(size(si))*1e-4.*flag;
-PHYT3_roms = ones(size(si))*1e-5.*flag; 
-% Synechococcus,4*10^4 cells/l, 250 fgC/cell=> 1e-5 mgC/l,
-% PARTENSKY et al,1999; Malmstrom, et al, 2006.
-
-PHYT2_roms = ones(size(si));
-if(coast==1)
-    PHYT2_roms(coast_flag==1) = 1000*kb_Ccell; % 1000 cells/l
-elseif(coast==2)
-    PHYT2_roms(coast_flag==1) = 1e4*kb_Ccell; % 1e4 cells/l, offshore
-    PHYT2_roms(coast_flag==1) = 1000*kb_Ccell; % 1000 cells/l, bay
-elseif(coast==3)
-    PHYT2_roms(coast_flag==1) = 1000*kb_Ccell; % 1000 cells/l, bay
-elseif(coast==4)
-    PHYT2_roms(coast_flag==1) = 1000*kb_Ccell; % 1000 cells/l
-end
-
-PHYT2_roms(coast_flag==0) = 1.0e-21; % <1 cell/l
+PHYT2_roms = kb_ini;
+PHYT3_roms = ones(size(si))*1e5*syn_Ccell.*flag; 
 
 k = 0;
 for i=gn.N:-1:1
@@ -276,17 +236,9 @@ for i=gn.N:-1:1
     RPOC_roms(:,:,k) = tmp;
 
     tmp = PHYT1_roms(:,:,k);
-    tmp(bay_mask==1) = 0.01;
+    tmp2 = chla_bay(:,:,i)*50;
+    tmp(~isnan(tmp2)) = tmp2(~isnan(tmp2))*0.8;
     PHYT1_roms(:,:,k) = tmp;
-%     tmp = PHYT1_roms(:,:,i);
-%     tmp2 = chla_bay(:,:,i)*50*0.8;
-%     tmp(~isnan(tmp2)) = tmp2(~isnan(tmp2));
-%     PHYT1_roms(:,:,k) = tmp;
-% 
-%     tmp = PHYT3_roms(:,:,i);
-%     tmp2 = chla_bay(:,:,i)*30*0.05;
-%     tmp(~isnan(tmp2)) = tmp2(~isnan(tmp2));
-%     PHYT3_roms(:,:,k) = tmp;
 end
 
 BSI_roms = PHYT1_roms*(1/CRBS1);
@@ -295,7 +247,7 @@ PO4T_roms = PO4T_roms+PHYT1_roms*(1/CRBP1)+PHYT2_roms*(1/CRBP2)+PHYT3_roms*(1/CR
 NH4T_roms = NH4T_roms+PHYT1_roms*(1/CRBN1)+PHYT2_roms*(1/CRBN2)+PHYT3_roms*(1/CRBN3);
 
 %Sediment
-CTEMP = temp_ini_out(:,:,1)*0.8;
+CTEMP = temp_ini_out(:,:,1)*0.9;
 
 CPOPG1 = ones(r,c)*rho0.*OPP*G1P;
 CPOPG2 = ones(r,c)*rho0.*OPP*G2P;
@@ -310,34 +262,6 @@ CPOCG2 = ones(r,c)*rho0.*OCP*G2P;
 CPOCG3 = ones(r,c)*rho0.*OCP*G3P;
 
 CPOS = ones(r,c)*rho0.*SP;
-
-% CPOPG1 = ones(r,c)*3000;
-% CPOPG2 = ones(r,c)*70000;
-% CPOPG3 = ones(r,c)*240000;
-% 
-% CPOPG1(bay_mask==0) = 300;
-% CPOPG2(bay_mask==0) = 7000;
-% CPOPG3(bay_mask==0) = 24000;
-% 
-% CPONG1 = ones(r,c)*900;
-% CPONG2 = ones(r,c)*18000;
-% CPONG3 = ones(r,c)*180000;
-% 
-% CPONG1(bay_mask==0) = 90;
-% CPONG2(bay_mask==0) = 1800;
-% CPONG3(bay_mask==0) = 18000;
-% 
-% CPOCG1 = ones(r,c)*40000;
-% CPOCG2 = ones(r,c)*400000;
-% CPOCG3 = ones(r,c)*6000000;
-% 
-% CPOCG1(bay_mask==0) = 4000;
-% CPOCG2(bay_mask==0) = 40000;
-% CPOCG3(bay_mask==0) = 600000;
-% 
-% CPOS = ones(r,c)*1300000;
-% CPOS(bay_mask==0) = 1300000;
-
 
 %Layer 1 aerobic
 PO4T1TM1S = ones(r,c)*18000;
@@ -370,11 +294,10 @@ SO4T2TM1S = ones(r,c)*1000;
 
 BNTHSTR1S = ones(r,c)*4.*scale_distance;
 
-HSED = ones(r,c)*0.2;
+HSED = ones(r,c)*0.1;
 VSED = ones(r,c)*0.25;
 VDMIX = ones(r,c)*0.001;
 VPMIX = ones(r,c)*0.00012;
-
 
 spherical = ncread(grd_name,'spherical');
 if(strcmp(spherical,'T'))
@@ -455,9 +378,34 @@ if(bio_sed>0)
     ncwrite(init_file,'VDMIX',VDMIX);
 end
 
-figure('units','pixels','position',[500 150 450 410]);
+figure('units','pixels','position',[500 150 1200 410]);
+subplot(1,3,1);
 m_proj('Mercator','lat',[24 32],'long',[-87.8 -80.2]);
-hp = m_pcolor(lon,lat,PHYT2_roms(:,:,1));set(hp,'linestyle','none');
+m_contourf(lon,lat,PHYT1_roms(:,:,end),100,'linestyle','none');
+hold on;
+m_gshhs_h('patch',[.6 .6 .6]);
+hold on;
+m_grid('linestyle','none','xtick',[-88.5:2:-80.5],'ytick',[24.5:2:32.5],'tickstyle','dd','fontsize',11);
+colorbar;
+set(gcf,'color', [1 1 1]);
+xlabel('Longitude','fontsize',9);
+ylabel('Latitude','fontsize',9); 
+
+subplot(1,3,2);
+m_proj('Mercator','lat',[24 32],'long',[-87.8 -80.2]);
+m_contourf(lon,lat,PHYT2_roms(:,:,end),100,'linestyle','none');
+hold on;
+m_gshhs_h('patch',[.6 .6 .6]);
+hold on;
+m_grid('linestyle','none','xtick',[-88.5:2:-80.5],'ytick',[24.5:2:32.5],'tickstyle','dd','fontsize',11);
+colorbar;
+set(gcf,'color', [1 1 1]);
+xlabel('Longitude','fontsize',9);
+ylabel('Latitude','fontsize',9); 
+
+subplot(1,3,3);
+m_proj('Mercator','lat',[24 32],'long',[-87.8 -80.2]);
+m_contourf(lon,lat,PHYT3_roms(:,:,end),100,'linestyle','none');
 hold on;
 m_gshhs_h('patch',[.6 .6 .6]);
 hold on;

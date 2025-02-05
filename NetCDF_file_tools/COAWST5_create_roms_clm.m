@@ -9,8 +9,7 @@ clear all; close all;
 % 5. nfiles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%grd_name =  '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-grd_name =  '../Model_grid/ROMS_WFS_Piney.nc';
+grd_name =  '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
@@ -18,11 +17,12 @@ gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd_name,'Cs_r'));
 nfiles = 6;
 
-year = 2021;
+year = 2003;
 %nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/Detided_GOM_HYCOM/';
 %nontidal_dataset_source = 'GOMu0.04/expt_90.1m000';
 nontidal_dataset_dir = '../Non_tidal_component_preprocessing/HYCOM/';
-nontidal_dataset_source = 'GLBy0.08/expt_93.0';
+%nontidal_dataset_source = 'GLBy0.08/expt_56.3_57.2';
+nontidal_dataset_source = 'GLBv0.08/expt_53.X';
 
 load(strcat(nontidal_dataset_dir,'non_tidal_clm_',num2str(year),'.mat'));
 origin_date = date_clm + datenum(year,1,1);

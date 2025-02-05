@@ -4,7 +4,8 @@
 !
 !  Imported and exported variable declarations. 
 !
-      INTEGER ::   ncID, varID, DAY, YEAR, DAYS, REC_INT
+      INTEGER ::   ncID, varID, DAY0, DAY, YEAR1, YEAR2, DAYS, REC_INT
+      INTEGER ::   MOD_FLAG, MOD_START
       INTEGER ::   ncid1,I,J,K
       INTEGER ::   Dimid1, Dimid2,Dimid3,Dimid4,Dimid5
       INTEGER ::   Dimid6, Dimid7,Dimid8,Dimid9,Dimid10
@@ -29,19 +30,28 @@
     
       REAL*8     :: dzero
 
-      dzero = 243.
-      YEAR = 2022
-      DAYS = 365-dzero
+      dzero = 262.
+
+      YEAR1 = 2022
+      YEAR2 = 2023
+      DAYS = 254
       REC_INT = 1
+! MOD_FLAG, 0 = New Files, 1 = Modify Existing Files
+      MOD_FLAG = 0
+! Numbers of day from dzero.
+      MOD_START = 0
 !-----------------------------------------------------------------------
 ! Define output files
 !-----------------------------------------------------------------------
       SUBNA = 'CREATE'
 
 !     Define Dimensions
-      WRITE(str2,"(I4.4)") YEAR
+      WRITE(str2,"(I4.4)") YEAR1
+      WRITE(str3,"(I4.4)") YEAR2
 
-      filename =  './WFS_'//TRIM(ADJUSTL(str2))//'_SSC.nc'
+      IF(MOD_FLAG.EQ.0) THEN
+      filename =  './WFS_'//TRIM(ADJUSTL(str2))//'_'
+     .//TRIM(ADJUSTL(str3))//'_SSC.nc'
 
       status = nf90_create(trim(adjustl(filename))
      . , nf90_clobber,ncid1)
@@ -91,7 +101,7 @@
       status = nf90_put_att(ncid1,VarID1,
      . 'long_name','time since initialization')
       status = nf90_put_att(ncid1,VarID1,
-     . 'units','seconds since 2022-01-01 00:00:00')
+     . 'units','seconds since 2022-09-20 00:00:00')
       status = nf90_put_att(ncid1,VarID1,
      . 'calendar','gregorian')
       status = nf90_put_att(ncid1,VarID1,
@@ -116,18 +126,39 @@
 
       status = nf90_enddef(ncid1)
       CALL nccheck_status(status,'ENDDEF',SUBNA)
+      ELSE
+        filename =  './WFS_'//TRIM(ADJUSTL(str2))//'_'
+     .//TRIM(ADJUSTL(str3))//'_SSC.nc'
+        status=nf90_open(TRIM(ADJUSTL(filename)),nf90_write,ncid1)
+        status=nf90_inq_varid(ncid1,'ocean_time',VarID1)
+        status=nf90_inq_varid(ncid1,'SSC_time',VarID2)
+        status=nf90_inq_varid(ncid1,'SSC',VarID3)
+      ENDIF
 
       k=0
-      DO DAY= 1+dzero, DAYS+dzero
+      DO DAY0= 1+dzero, DAYS+dzero
       k=k+1
+      IF(MOD_FLAG.EQ.0.OR.(MOD_FLAG.EQ.1.AND.k.GE.(MOD_START+1))) THEN
 !-----------------------------------------------------------------------
 ! name of this subroutine!-----------------------------------------------------------------------
 !
       SUBNA= 'EXTRACT'
-      WRITE(str,"(I5.5)") DAY
-      HISNA = 
-     .'../WFS_'//TRIM(ADJUSTL(str2))//'_avg_'//TRIM(ADJUSTL(str))//'.nc'
+
+      IF(DAY0>365) THEN
+        DAY=DAY0-365
+        WRITE(str,"(I5.5)") DAY
+        HISNA =
+     .'../WFS_'//TRIM(ADJUSTL(str3))//'_avg_'//TRIM(ADJUSTL(str))//'.nc'
+      ELSE
+        DAY=DAY0
+        WRITE(str,"(I5.5)") DAY
+        HISNA =
+     .'../../2022_IAN_WCI/WFS_'
+     .//TRIM(ADJUSTL(str2))//'_avg_'//TRIM(ADJUSTL(str))//'.nc'
+      ENDIF
+
       PRINT*, HISNA
+
 !-----------------------------------------------------------------------
 ! Get ROMS input
 !-----------------------------------------------------------------------
@@ -166,10 +197,19 @@
 !-----------------------------------------------------------------------
 ! Ouput ROMS variable into single file
 !----------------------------------------------------------------------- 
-
-      IF(k==1) THEN
-         ocean_time_ref = ocean_time(1)
+      IF(MOD_FLAG.EQ.0) THEN
+        IF(k==1) THEN
+          ocean_time_ref = ocean_time(1)
+        ENDIF
+      ELSE
+        IF(k.EQ.(MOD_START+1)) THEN
+          ocean_time_ref = ocean_time(1)- MOD_START*24.*3600.
+        ENDIF
       ENDIF
+      IF(DAY0>365) THEN
+        IF(DAY==1) ocean_time_ref = ocean_time_ref-365.*24.*3600.
+      ENDIF
+      
       DO I = 1,NT
          ocean_time(I) = ocean_time(I)-ocean_time_ref
       ENDDO
@@ -189,6 +229,7 @@
      .count = (/NX,NY,NZ,NT/))
       CALL nccheck_status(status,'OUTPUT3',SUBNA)
 
+      ENDIF
       ENDDO
 
       status = nf90_close(ncid1)

@@ -13,33 +13,34 @@ clear all; close all;
 addpath(path,'../../COAWST/Tools/mfiles/roms_clm');
 
 % model grid
-fn = '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-
-% OTPS output
-fn1='./OTPS/COAWST_TIDE_OUTPUT/coawst_el_e.out';
-fn2='./OTPS/COAWST_TIDE_OUTPUT/coawst_el_s.out';
-fn3='./OTPS/COAWST_TIDE_OUTPUT/coawst_el_w.out';
-fn4='./OTPS/COAWST_TIDE_OUTPUT/coawst_el_n.out';
-
-fn5='./OTPS/COAWST_TIDE_OUTPUT/coawst_u_e.out';
-fn6='./OTPS/COAWST_TIDE_OUTPUT/coawst_u_s.out';
-fn7='./OTPS/COAWST_TIDE_OUTPUT/coawst_u_w.out';
-fn8='./OTPS/COAWST_TIDE_OUTPUT/coawst_u_n.out';
-
-fn9='./OTPS/COAWST_TIDE_OUTPUT/coawst_v_e.out';
-fn10='./OTPS/COAWST_TIDE_OUTPUT/coawst_v_s.out';
-fn11='./OTPS/COAWST_TIDE_OUTPUT/coawst_v_w.out';
-fn12='./OTPS/COAWST_TIDE_OUTPUT/coawst_v_n.out';
+fn = '../Model_grid/ROMS_WFS_new.nc';
 
 % Output data length 
 dt=1/24;
-d1=datenum(2021,1,1,0,0,0);
-d2=datenum(2021,12,31,24,0,0);
+d1=datenum(2003,1,1,0,0,0);
+d2=datenum(2003,12,31,24,0,0);
 tide_out_date = d1:dt:d2;
 year = datevec(d1);
 year = year(1);
 %Boundary used
 bnd_flag = [1 1 0 1]; %E S W N
+
+% OTPS output
+fn1=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_el_e.out'];
+fn2=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_el_s.out'];
+fn3=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_el_w.out'];
+fn4=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_el_n.out'];
+
+fn5=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_u_e.out'];
+fn6=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_u_s.out'];
+fn7=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_u_w.out'];
+fn8=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_u_n.out'];
+
+fn9=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_v_e.out'];
+fn10=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_v_s.out'];
+fn11=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_v_w.out'];
+fn12=['./OTPS/COAWST_TIDE_OUTPUT_',num2str(year),'/coawst_v_n.out'];
+
 %--------------------- Read from model grid--------------------------------
 lon = ncread(fn,'lon_rho');
 lat = ncread(fn,'lat_rho');

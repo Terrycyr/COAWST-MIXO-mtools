@@ -2,14 +2,14 @@ clear all;close all;
 addpath(path,'../SUNRISE_SUNSET/');
 addpath C:\Users\cheny\Desktop\EcoHAB\self_functions
 
-grd = '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
+grd = '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd,'lon_rho');
 lat = ncread(grd,'lat_rho');
 mask = ncread(grd,'mask_rho');
 gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd,'Cs_r'));
 
-year = 2021;
+year = 2023;
 out_date = datenum(year,1,1,0,0,0):3/24:datenum(year,12,31,24,0,0);
 method = 3; %1: linear interpolate par; 2: swrad linear fitting to climatology 3: use climatology
 

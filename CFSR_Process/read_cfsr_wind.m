@@ -1,16 +1,16 @@
-clear all;
+clear all;close all;
 %Reading and pre-processing CFSR Variables, and save to mat files.
 %Developed by YUren Chen, 2021/03/02, Guangzhou
 %Modified for adaption to CFSR and CFSv2, 2021/03/04, Guangzhou
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Specify Variables
-grd = '../Model_grid/ROMS_WFS_10river_grid_v10.nc'; %ROMS grid
-cfsr_dir = {'../CFSR/2021/wind/','../CFSR/2021/wind/','../CFSR/2021/slp/'}; %CFSR directory for each variables
+grd = '../Model_grid/ROMS_WFS_new.nc'; %ROMS grid
+cfsr_dir = {'../CFSR/1998_2003/wind/','../CFSR/1998_2003/wind/','../CFSR/1998_2003/slp/'}; %CFSR directory for each variables
 cfsr_var = {'U_GRD_L103','V_GRD_L103','PRMSL_L101'}; %CFSR variable names
 cfsr_deltat = 6; %time interval of the CFSR data, unit: hour
 out_var = {'u_out','v_out','slp_out'}; %name of the output variables
-origin_date = datenum(2021,1,1,6,0,0):cfsr_deltat/24:datenum(2021,12,31,24,0,0); %origin_date should Cover the Initial time
-out_date = datenum(2021,1,1,0,0,0):cfsr_deltat/24:datenum(2021,12,31,24,0,0); %output time range
+origin_date = datenum(2002,1,1,6,0,0):cfsr_deltat/24:datenum(2002,12,31,24,0,0); %origin_date should Cover the Initial time
+out_date = datenum(2002,1,1,0,0,0):cfsr_deltat/24:datenum(2002,12,31,24,0,0); %output time range
 rot_flag = [1,2,0]; %rotation flag, u==1, v==2, others == 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

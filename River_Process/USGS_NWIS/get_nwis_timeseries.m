@@ -20,8 +20,10 @@ function river_out = get_nwis_timeseries(r,out_date,varname)
         end          
 
         for i=1:size(r(n_r).data,1)
+%             river_date0(i) = datenum(r(n_r).data(i,pos_year),...
+%             r(n_r).data(i,pos_mon),r(n_r).data(i,pos_day))+5/24; %convert to UTC
             river_date0(i) = datenum(r(n_r).data(i,pos_year),...
-            r(n_r).data(i,pos_mon),r(n_r).data(i,pos_day))+5/24; %convert to UTC
+            r(n_r).data(i,pos_mon),r(n_r).data(i,pos_day)); 
             river_out0(i) = r(n_r).data(i,pos_out);
             if(~isnan(river_out0(i)))     
                 river_out_m(r(n_r).data(i,pos_mon)) = river_out_m(r(n_r).data(i,pos_mon))...
@@ -33,6 +35,7 @@ function river_out = get_nwis_timeseries(r,out_date,varname)
         for mon=1:12
             river_out_m(mon) = river_out_m(mon)/river_m_count(mon);
         end
+
         river_out(n_r,:) = interp1(river_date0(~isnan(river_out0)),river_out0(~isnan(river_out0)),out_date);
         river_out_cycle = zeros(1,length(out_date));
         for t = 1:length(out_date)
@@ -41,11 +44,5 @@ function river_out = get_nwis_timeseries(r,out_date,varname)
         end
         river_out(n_r,isnan(river_out(n_r,:))) = river_out_cycle(isnan(river_out(n_r,:)));
     end
-
-    
-    
-
-    
-
 end
 

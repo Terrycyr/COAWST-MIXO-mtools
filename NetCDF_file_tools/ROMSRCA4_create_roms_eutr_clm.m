@@ -1,5 +1,5 @@
 clear all; close all;
-grd_name =  '../Model_grid/ROMS_WFS_new.nc';
+grd_name =  './ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
@@ -7,16 +7,16 @@ gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd_name,'Cs_r'));
 nfiles = 6;
 
-year = 2022;
-init_file = 'WFS_2022_ini_bio.nc';
+year = 2005;
+init_file = 'WFS_2005_ini_bio.nc';
 
-time_ref = datenum(year,9,1,0,0,0)-datenum(year,1,1);
+time_ref = datenum(year,5,1,0,0,0)-datenum(year,1,1);
 
-date_clm = [0 365]-time_ref;
+date_clm = [0 730]-time_ref;
 t_clim = length(date_clm);
 
 %NO23
-fn = 'WFS_2022_clm_NO23.nc'; delete(fn);
+fn = 'WFS_2005_2006_clm_NO23.nc'; delete(fn);
 create_roms_netcdf_clm_eutr(fn,gn,t_clim,'NO23');
 
 no23_ini = ncread(init_file,'NO23');
@@ -29,7 +29,7 @@ ncwrite(fn,'lat_rho',lat);
 ncwrite(fn,'NO23',no23_clm);
 
 %NH4T
-fn = 'WFS_2022_clm_NH4T.nc'; delete(fn);
+fn = 'WFS_2005_2006_clm_NH4T.nc'; delete(fn);
 create_roms_netcdf_clm_eutr(fn,gn,t_clim,'NH4T');
 
 nh4t_ini = ncread(init_file,'NH4T');
@@ -42,7 +42,7 @@ ncwrite(fn,'lat_rho',lat);
 ncwrite(fn,'NH4T',nh4t_clm);
 
 %PO4T
-fn = 'WFS_2022_clm_PO4T.nc'; delete(fn);
+fn = 'WFS_2005_2006_clm_PO4T.nc'; delete(fn);
 create_roms_netcdf_clm_eutr(fn,gn,t_clim,'PO4T');
 
 po4t_ini = ncread(init_file,'PO4T');
@@ -55,7 +55,7 @@ ncwrite(fn,'lat_rho',lat);
 ncwrite(fn,'PO4T',po4t_clm);
 
 %SIT
-fn = 'WFS_2022_clm_SIT.nc'; delete(fn);
+fn = 'WFS_2005_2006_clm_SIT.nc'; delete(fn);
 create_roms_netcdf_clm_eutr(fn,gn,t_clim,'SIT');
 
 sit_ini = ncread(init_file,'SIT');
@@ -68,7 +68,7 @@ ncwrite(fn,'lat_rho',lat);
 ncwrite(fn,'SIT',sit_clm);
 
 %DO
-fn = 'WFS_2022_clm_DO.nc'; delete(fn);
+fn = 'WFS_2005_2006_clm_DO.nc'; delete(fn);
 create_roms_netcdf_clm_eutr(fn,gn,t_clim,'DO');
 
 do_ini = ncread(init_file,'DO');

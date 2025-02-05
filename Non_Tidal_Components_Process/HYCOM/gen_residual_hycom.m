@@ -6,7 +6,7 @@
 % dataset and ROMS model grid, extrapolation are performed here. 
 %--------------------------------------------------------------------------
 clear all; close all;
-for year = [2022]
+for year = [2002]
 
 % toolbox path
 addpath(path,'../../../COAWST/Tools/mfiles/rutgers/utility');
@@ -18,7 +18,7 @@ date_out2d = datenum(year,1,1,0,0,0):1/24:datenum(year,12,31,24,0,0);
 
 % model grid
 %fn = '../../Model_grid/ROMS_WFS_10river_grid_v11.nc';
-fn = '../../Model_grid/ROMS_WFS_piney.nc';
+fn = '../../Model_grid/ROMS_WFS_new.nc';
 
 % params.
 n_hycomlayer = 40;

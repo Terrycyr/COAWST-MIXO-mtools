@@ -26,18 +26,61 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all; close all;
 %0) Preprocessing of river data.
-    addpath(path,'../River_preprocessing/USGS_NWIS/');
-    out_date = datenum(2022,1,1):datenum(2022,12,31,24,0,0);
-    time_ref = datenum(2022,9,1,0,0,0);
+    addpath(path,'./River_preprocessing/USGS_NWIS/');
+    out_date = datenum(2005,1,1):datenum(2007,1,1);
+    time_ref = datenum(2005,5,1,0,0,0);
     year = datevec(out_date(1));
     year = year(1);
     preprocess_river_nwis;
-    load(strcat('../Water_Atlas/WA_river_bnd_',num2str(year),'.mat'));
+    wa1 = load(strcat('./WA_river_bnd_',num2str(year),'.mat'));
+    wa2 = load(strcat('./WA_river_bnd_',num2str(year+1),'.mat'));
+    
+    river_DO = wa1.river_DO;
+    river_SAL = wa1.river_SAL;
+    river_LDOC = wa1.river_LDOC;
+    river_LDON = wa1.river_LDON;
+    river_LDOP = wa1.river_LDOP;
+    river_LPOC = wa1.river_LPOC;
+    river_LPON = wa1.river_LPON;
+    river_LPOP = wa1.river_LPOP;
+    river_RDOC = wa1.river_RDOC;
+    river_RDON = wa1.river_RDON;
+    river_RDOP = wa1.river_RDOP;
+    river_RPOC = wa1.river_RPOC;
+    river_RPON = wa1.river_RPON;
+    river_RPOP = wa1.river_RPOP;
+    river_NH4T = wa1.river_NH4T;
+    river_NO23 = wa1.river_NO23;
+    river_PO4T = wa1.river_PO4T;
+    river_SIT = wa1.river_SIT;
+
+    pos1 = size(river_DO,3);
+    pos2 = pos1+size(wa2.river_DO,3)-1;
+
+    river_DO(:,:,pos1:pos2) = wa2.river_DO;
+    river_SAL(:,:,pos1:pos2) = wa2.river_SAL;
+    river_LDOC(:,:,pos1:pos2) = wa2.river_LDOC;
+    river_LDON(:,:,pos1:pos2) = wa2.river_LDON;
+    river_LDOP(:,:,pos1:pos2) = wa2.river_LDOP;
+    river_LPOC(:,:,pos1:pos2) = wa2.river_LPOC;
+    river_LPON(:,:,pos1:pos2) = wa2.river_LPON;
+    river_LPOP(:,:,pos1:pos2) = wa2.river_LPOP;
+    river_RDOC(:,:,pos1:pos2) = wa2.river_RDOC;
+    river_RDON(:,:,pos1:pos2) = wa2.river_RDON;
+    river_RDOP(:,:,pos1:pos2) = wa2.river_RDOP;
+    river_RPOC(:,:,pos1:pos2) = wa2.river_RPOC;
+    river_RPON(:,:,pos1:pos2) = wa2.river_RPON;
+    river_RPOP(:,:,pos1:pos2) = wa2.river_RPOP;
+    river_NH4T(:,:,pos1:pos2) = wa2.river_NH4T;
+    river_NO23(:,:,pos1:pos2) = wa2.river_NO23;
+    river_PO4T(:,:,pos1:pos2) = wa2.river_PO4T;
+    river_SIT(:,:,pos1:pos2) = wa2.river_SIT;
+
     Nutri_adjust = 1.0;
 
 %1) Enter name of netcdf forcing file to be created.
 %   If it already exists it will be overwritten!!.
-    forc_file='WFS_2022_river_bio.nc';
+    forc_file='WFS_2005_2006_river_bio.nc';
 
 %2) Enter times of river forcings data, in seconds.
 %   This time needs to be consistent with model time (ie dstart and time_ref).
@@ -49,7 +92,7 @@ clear all; close all;
 
 %3) Enter number of vertical sigma levels in model.
 %   This will be same value as entered in mod_param.F
-     grd_name = '../Model_grid/ROMS_WFS_new.nc';    %<-enter name of grid here
+     grd_name = './ROMS_WFS_new.nc';    %<-enter name of grid here
     
      lon_rho = ncread(grd_name,'lon_rho');
      lat_rho = ncread(grd_name,'lat_rho');

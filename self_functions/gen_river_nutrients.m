@@ -1,4 +1,4 @@
-function [] = gen_river_nutrients(grd,varname,var_flag,n_river,out_date)
+function [] = gen_river_nutrients(grd,varname,var_flag,n_river,out_date,fn_WA,fn_loadest,fn_out)
 
 % params.
 fn = grd;
@@ -13,8 +13,8 @@ year = datevec(out_date(1));
 year = year(1);
 nz = N;
 
-load(strcat('loadest_',num2str(year),'.mat'));
-load(strcat('WA_',num2str(year),'.mat'));
+load(fn_loadest);
+load(fn_WA);
 
 %DISSOLVED & PARTICULATE
 OCDP_r = 0.84;
@@ -33,8 +33,11 @@ for river = 1:n_river
     for var = 1:length(varname)
         if(var_flag(river,var)==0)
                 try
-                    nutrient1{river}(var,:) = interp1(nutri_dat{river,var}(:,1),nutri_dat{river,var}(:,2),...
+                    tmp = interp1(nutri_dat{river,var}(:,1),nutri_dat{river,var}(:,2),...
                         out_date);
+                    tmp(isnan(tmp)) = interp1(nutri_dat{river,var}(:,1),nutri_dat{river,var}(:,2),...
+                        out_date(isnan(tmp)),'nearest','extrap');
+                    nutrient1{river}(var,:) = tmp;
                 catch
                     nutrient1{river}(var,:) = 0.0;
                 end
@@ -84,13 +87,19 @@ for river = 1:n_river
         river_RPOC(river,z,:) = (1-OCDP_r)*(1-OCLR_r)*nutrient1{river}(8,:);
         river_RPON(river,z,:) = (1-OCDP_r)*(1-OCLR_r)*nutrient1{river}(3,:);
         river_RPOP(river,z,:) = (1-OCDP_r)*(1-OCLR_r)*nutrient1{river}(9,:);
-        river_SIT(river,z,:) = nutrient1{river}(7,:);      
+        river_SIT(river,z,:) = nutrient1{river}(7,:);     
+        if(sum(contains(varname,'CHLA'))>0)
+            river_CHLA(river,z,:) = nutrient1{river}(10,:);
+        end
     end
 end
 
-save(strcat('WA_river_bnd_',num2str(year),'.mat'),'river_LDOC','river_LDON','river_LDOP','river_LPOC','river_LPON','river_LPOP',...
+save(fn_out,'river_LDOC','river_LDON','river_LDOP','river_LPOC','river_LPON','river_LPOP',...
                             'river_NH4T','river_NO23','river_PO4T','river_RDOC','river_RDON','river_RDOP',...
                             'river_RPOC','river_RPON','river_RPOP','river_SIT','river_SAL','river_DO');
+if(sum(contains(varname,'CHLA'))>0)
+    save(fn_out,'river_CHLA','-append');
+end
         
 end
 

@@ -49,7 +49,7 @@ Ls = 190;
 mu1 = L./Ls.*exp(1-(L./Ls));
 
 alpha2 = 0.02;
-K2C = 2.4; 
+K2C = 2.3; 
 mu2 = tanh(alpha2*L/K2C);
 
 %(1-exp(-a.*x./c)).*exp(-b.*x./c)
@@ -64,11 +64,11 @@ alpha3/mu_max
 beta3/mu_max
 
 Linhib = 400;
-alpha4 = 0.02;
-beta4 = 0.00034;
+alpha4 = 0.0087;
+beta4 = 0.0005;
 for i=1:length(L)
     L_inhib = L(i)-Linhib;
-    mu4(i) = tanh(alpha4*L(i)/K2C);
+    mu4(i) = tanh(alpha4*L(i));
     if(L_inhib>0)
         mu4(i) = mu4(i)*exp(-beta4*L_inhib);
     end
@@ -166,7 +166,7 @@ Ls = 70;
 mu1 = L./Ls.*exp(1-(L./Ls));
 
 alpha2 = 0.02;
-K2C = 0.9; 
+K2C = 1.0; 
 mu2 = tanh(alpha2*L/K2C);
 
 %(1-exp(-a.*x./c)).*exp(-b.*x./c)
@@ -185,7 +185,7 @@ alpha4 = 0.02;
 beta4 = 0.0004;
 for i=1:length(L)
     L_inhib = L(i)-Linhib;
-    mu4(i) = tanh(alpha4*L(i)/K2C);
+    mu4(i) = tanh(alpha4*L(i));
     if(L_inhib>0)
         mu4(i) = mu4(i)*exp(-beta4*L_inhib);
     end
@@ -240,12 +240,12 @@ mu3 = mu3./mu_max;
 alpha3/mu_max
 beta3/mu_max
 
-Linhib = 300;
-alpha4 = 0.0099;
-beta4 = 0.00012;
+Linhib = 500;
+alpha4 = 0.02;
+beta4 = 0.00005;
 for i=1:length(L)
     L_inhib = L(i)-Linhib;
-    mu4(i) = tanh(alpha4*L(i)/K2C);
+    mu4(i) = tanh(alpha4*L(i));
     if(L_inhib>0)
         mu4(i) = mu4(i)*exp(-beta4*L_inhib);
     end

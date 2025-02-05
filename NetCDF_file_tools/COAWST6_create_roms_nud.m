@@ -1,5 +1,5 @@
 clear all; close all;
-grd_name =  '../Model_grid/ROMS_WFS_10river_grid_v11.nc';
+grd_name =  '../Model_grid/ROMS_WFS_new.nc';
 lon = ncread(grd_name,'lon_rho');
 lat = ncread(grd_name,'lat_rho');
 mask = ncread(grd_name,'mask_rho');
@@ -7,7 +7,7 @@ gn = struct('lon_rho',lon);
 gn.N = length(ncread(grd_name,'Cs_r'));
 h = ncread(grd_name,'h');
 N=gn.N;
-fn = 'WFS_2021_nud.nc';
+fn = 'WFS_2003_nud.nc';
 
 create_roms_netcdf_nudging_coef(fn,gn);
 
