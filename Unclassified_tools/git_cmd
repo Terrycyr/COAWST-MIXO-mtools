@@ -1,0 +1,28 @@
+git initialize:
+  ssh-keygen -t rsa -C "chenyr57@gmail.com"
+  ssh -T git@github.com
+
+  git init
+  git remote add origin git@github.com:Terrycyr/COAWST-MIXO-OFFLINE.git 
+  git clone git@github.com:Terrycyr/COAWST-MIXO-OFFLINE.git
+
+Work flow for updating changes:
+  (1) ssh -T git@github.com
+  (2) git add .
+  (3) git commit -m 'Notes'
+  (4) git push -u origin branch_name
+
+List all branches:
+  git branch
+
+Switch to a branch:
+  git checkout branch_name
+
+Pull down the newest version: 
+  git pull
+
+Merge branch (usually to the main):
+  git merge sub_branch_name
+
+Push to github repository:
+  git push -u orgin branch_name
