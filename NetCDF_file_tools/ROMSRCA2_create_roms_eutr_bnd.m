@@ -18,64 +18,105 @@ t = length(date_bry);
 create_roms_netcdf_bndry_eutr(fn,gn,t,dir_flag)
 const_initialize(fn,0.);
 
-load(strcat('./','ocean_nutrients_bnd_',num2str(year+1),'.mat'));
-s_do1 = s_do;
-s_don1 = s_don;
-s_nh41 = s_nh4;
-s_no31 =s_no3;
-s_po41 = s_po4;
-s_sa11 = s_sal;
-s_si1 = s_si;
-s_temp1 = s_temp;
+year_end = datevec(date_bry(end));
+year_end = year_end(1);
 
-n_do1 = n_do;
-n_don1 = n_don;
-n_nh41 = n_nh4;
-n_no31 =n_no3;
-n_po41 = n_po4;
-n_sa11 = n_sal;
-n_si1 = n_si;
-n_temp1 = n_temp;
+if(year_end==year+1)
+    load(strcat('./','ocean_nutrients_bnd_',num2str(year+1),'.mat'));
+    s_do1 = s_do;
+    s_don1 = s_don;
+    s_nh41 = s_nh4;
+    s_no31 =s_no3;
+    s_po41 = s_po4;
+    s_sal1 = s_sal;
+    s_si1 = s_si;
+    s_temp1 = s_temp;
 
-e_do1 = e_do;
-e_don1 = e_don;
-e_nh41 = e_nh4;
-e_no31 =e_no3;
-e_po41 = e_po4;
-e_sa11 = e_sal;
-e_si1 = e_si;
-e_temp1 = e_temp;
+    n_do1 = n_do;
+    n_don1 = n_don;
+    n_nh41 = n_nh4;
+    n_no31 =n_no3;
+    n_po41 = n_po4;
+    n_sal1 = n_sal;
+    n_si1 = n_si;
+    n_temp1 = n_temp;
+
+    e_do1 = e_do;
+    e_don1 = e_don;
+    e_nh41 = e_nh4;
+    e_no31 =e_no3;
+    e_po41 = e_po4;
+    e_sal1 = e_sal;
+    e_si1 = e_si;
+    e_temp1 = e_temp;
+end
 
 load(strcat('./','ocean_nutrients_bnd_',num2str(year),'.mat'));
-merge_range1 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)];
-merge_range2 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)]-size(s_do,3)+1;
+pos_start = find(date_out==date_bry(1));
+if(date_bry(end)>date_out(end))
+    pos_end = length(date_out);
+else
+    pos_end = find(date_out==date_bry(end));
+end
 
-s_do(:,:,merge_range1(1):merge_range1(2)) = s_do1(:,:,merge_range2(1):merge_range2(2));
-s_don(:,:,merge_range1(1):merge_range1(2)) = s_don1(:,:,merge_range2(1):merge_range2(2));
-s_nh4(:,:,merge_range1(1):merge_range1(2)) = s_nh41(:,:,merge_range2(1):merge_range2(2));
-s_no3(:,:,merge_range1(1):merge_range1(2)) = s_no31(:,:,merge_range2(1):merge_range2(2));
-s_po4(:,:,merge_range1(1):merge_range1(2)) = s_po41(:,:,merge_range2(1):merge_range2(2));
-s_sa1(:,:,merge_range1(1):merge_range1(2)) = s_sal(:,:,merge_range2(1):merge_range2(2));
-s_si(:,:,merge_range1(1):merge_range1(2)) = s_si1(:,:,merge_range2(1):merge_range2(2));
-s_temp(:,:,merge_range1(1):merge_range1(2)) = s_temp1(:,:,merge_range2(1):merge_range2(2));
+s_do = s_do(:,:,pos_start:pos_end);
+s_don = s_don(:,:,pos_start:pos_end);
+s_nh4 = s_nh4(:,:,pos_start:pos_end);
+s_no3 = s_no3(:,:,pos_start:pos_end);
+s_po4 = s_po4(:,:,pos_start:pos_end);
+s_sal = s_sal(:,:,pos_start:pos_end);
+s_si = s_si(:,:,pos_start:pos_end);
+s_temp = s_temp(:,:,pos_start:pos_end);
 
-n_do(:,:,merge_range1(1):merge_range1(2)) = n_do1(:,:,merge_range2(1):merge_range2(2));
-n_don(:,:,merge_range1(1):merge_range1(2)) = n_don1(:,:,merge_range2(1):merge_range2(2));
-n_nh4(:,:,merge_range1(1):merge_range1(2)) = n_nh41(:,:,merge_range2(1):merge_range2(2));
-n_no3(:,:,merge_range1(1):merge_range1(2)) = n_no31(:,:,merge_range2(1):merge_range2(2));
-n_po4(:,:,merge_range1(1):merge_range1(2)) = n_po41(:,:,merge_range2(1):merge_range2(2));
-n_sa1(:,:,merge_range1(1):merge_range1(2)) = n_sal(:,:,merge_range2(1):merge_range2(2));
-n_si(:,:,merge_range1(1):merge_range1(2)) = n_si1(:,:,merge_range2(1):merge_range2(2));
-n_temp(:,:,merge_range1(1):merge_range1(2)) = n_temp1(:,:,merge_range2(1):merge_range2(2));
+n_do = n_do(:,:,pos_start:pos_end);
+n_don = n_don(:,:,pos_start:pos_end);
+n_nh4 = n_nh4(:,:,pos_start:pos_end);
+n_no3 = n_no3(:,:,pos_start:pos_end);
+n_po4 = n_po4(:,:,pos_start:pos_end);
+n_sal = n_sal(:,:,pos_start:pos_end);
+n_si = n_si(:,:,pos_start:pos_end);
+n_temp = n_temp(:,:,pos_start:pos_end);
 
-e_do(:,:,merge_range1(1):merge_range1(2)) = e_do1(:,:,merge_range2(1):merge_range2(2));
-e_don(:,:,merge_range1(1):merge_range1(2)) = e_don1(:,:,merge_range2(1):merge_range2(2));
-e_nh4(:,:,merge_range1(1):merge_range1(2)) = e_nh41(:,:,merge_range2(1):merge_range2(2));
-e_no3(:,:,merge_range1(1):merge_range1(2)) = e_no31(:,:,merge_range2(1):merge_range2(2));
-e_po4(:,:,merge_range1(1):merge_range1(2)) = e_po41(:,:,merge_range2(1):merge_range2(2));
-e_sa1(:,:,merge_range1(1):merge_range1(2)) = e_sal(:,:,merge_range2(1):merge_range2(2));
-e_si(:,:,merge_range1(1):merge_range1(2)) = e_si1(:,:,merge_range2(1):merge_range2(2));
-e_temp(:,:,merge_range1(1):merge_range1(2)) = e_temp1(:,:,merge_range2(1):merge_range2(2));
+e_do = e_do(:,:,pos_start:pos_end);
+e_don = e_don(:,:,pos_start:pos_end);
+e_nh4 = e_nh4(:,:,pos_start:pos_end);
+e_no3 = e_no3(:,:,pos_start:pos_end);
+e_po4 = e_po4(:,:,pos_start:pos_end);
+e_sal = e_sal(:,:,pos_start:pos_end);
+e_si = e_si(:,:,pos_start:pos_end);
+e_temp = e_temp(:,:,pos_start:pos_end);
+
+if(year_end==year+1)
+    merge_range1 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)];
+    merge_range2 = [size(s_do,3) size(s_do,3)+date_bry(end)-datenum(year+1,1,1)]-size(s_do,3)+1;
+
+    s_do(:,:,merge_range1(1):merge_range1(2)) = s_do1(:,:,merge_range2(1):merge_range2(2));
+    s_don(:,:,merge_range1(1):merge_range1(2)) = s_don1(:,:,merge_range2(1):merge_range2(2));
+    s_nh4(:,:,merge_range1(1):merge_range1(2)) = s_nh41(:,:,merge_range2(1):merge_range2(2));
+    s_no3(:,:,merge_range1(1):merge_range1(2)) = s_no31(:,:,merge_range2(1):merge_range2(2));
+    s_po4(:,:,merge_range1(1):merge_range1(2)) = s_po41(:,:,merge_range2(1):merge_range2(2));
+    s_sal(:,:,merge_range1(1):merge_range1(2)) = s_sal1(:,:,merge_range2(1):merge_range2(2));
+    s_si(:,:,merge_range1(1):merge_range1(2)) = s_si1(:,:,merge_range2(1):merge_range2(2));
+    s_temp(:,:,merge_range1(1):merge_range1(2)) = s_temp1(:,:,merge_range2(1):merge_range2(2));
+
+    n_do(:,:,merge_range1(1):merge_range1(2)) = n_do1(:,:,merge_range2(1):merge_range2(2));
+    n_don(:,:,merge_range1(1):merge_range1(2)) = n_don1(:,:,merge_range2(1):merge_range2(2));
+    n_nh4(:,:,merge_range1(1):merge_range1(2)) = n_nh41(:,:,merge_range2(1):merge_range2(2));
+    n_no3(:,:,merge_range1(1):merge_range1(2)) = n_no31(:,:,merge_range2(1):merge_range2(2));
+    n_po4(:,:,merge_range1(1):merge_range1(2)) = n_po41(:,:,merge_range2(1):merge_range2(2));
+    n_sal(:,:,merge_range1(1):merge_range1(2)) = n_sal1(:,:,merge_range2(1):merge_range2(2));
+    n_si(:,:,merge_range1(1):merge_range1(2)) = n_si1(:,:,merge_range2(1):merge_range2(2));
+    n_temp(:,:,merge_range1(1):merge_range1(2)) = n_temp1(:,:,merge_range2(1):merge_range2(2));
+
+    e_do(:,:,merge_range1(1):merge_range1(2)) = e_do1(:,:,merge_range2(1):merge_range2(2));
+    e_don(:,:,merge_range1(1):merge_range1(2)) = e_don1(:,:,merge_range2(1):merge_range2(2));
+    e_nh4(:,:,merge_range1(1):merge_range1(2)) = e_nh41(:,:,merge_range2(1):merge_range2(2));
+    e_no3(:,:,merge_range1(1):merge_range1(2)) = e_no31(:,:,merge_range2(1):merge_range2(2));
+    e_po4(:,:,merge_range1(1):merge_range1(2)) = e_po41(:,:,merge_range2(1):merge_range2(2));
+    e_sal(:,:,merge_range1(1):merge_range1(2)) = e_sal1(:,:,merge_range2(1):merge_range2(2));
+    e_si(:,:,merge_range1(1):merge_range1(2)) = e_si1(:,:,merge_range2(1):merge_range2(2));
+    e_temp(:,:,merge_range1(1):merge_range1(2)) = e_temp1(:,:,merge_range2(1):merge_range2(2));
+end
 
 %DISSOLVED & PARTICULATE, Riverine
 OCDP_r = 0.84;
